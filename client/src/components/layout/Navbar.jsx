@@ -39,6 +39,9 @@ export default function Navbar() {
           <NavLink to="/search" className={pill}>
             Search
           </NavLink>
+          <NavLink to="/guard" className={pill}>
+            Monitor
+          </NavLink>
           {user && (
             <NavLink to="/my-bookings" className={pill}>
               My Bookings

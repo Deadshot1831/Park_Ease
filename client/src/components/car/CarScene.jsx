@@ -1,29 +1,28 @@
 import { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, Environment, ContactShadows, Html, Float } from '@react-three/drei';
+import { Environment, ContactShadows, Html, Float } from '@react-three/drei';
+import { useCarClone } from './carUtils';
 
 const prefersReducedMotion =
   typeof window !== 'undefined' &&
   window.matchMedia &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Realistic car (Draco-compressed glTF). Decoder is self-hosted in /public/draco.
-function Car() {
-  const { scene } = useGLTF('/models/car.glb', '/draco/');
-  return <primitive object={scene} />;
+function Car({ color }) {
+  const model = useCarClone(color);
+  return <primitive object={model} />;
 }
-useGLTF.preload('/models/car.glb', '/draco/');
 
 // Rotating turntable carrying the car + glowing platform
-function Turntable() {
+function Turntable({ color, speed }) {
   const ref = useRef();
   useFrame((_, delta) => {
-    if (ref.current && !prefersReducedMotion) ref.current.rotation.y += delta * 0.35;
+    if (ref.current && !prefersReducedMotion) ref.current.rotation.y += delta * speed;
   });
 
   return (
     <group ref={ref}>
-      <Car />
+      <Car color={color} />
       {/* Glowing disc platform */}
       <mesh rotation-x={-Math.PI / 2} position-y={0.001} receiveShadow>
         <circleGeometry args={[2.6, 64]} />
@@ -49,7 +48,7 @@ function SpinnerFallback() {
   );
 }
 
-export default function CarScene() {
+export default function CarScene({ color, rotateSpeed = 0.35 }) {
   const isMobile =
     typeof navigator !== 'undefined' && /iPhone|iPad|Android/i.test(navigator.userAgent);
 
@@ -62,16 +61,14 @@ export default function CarScene() {
       performance={{ min: 0.5 }}
       style={{ background: 'transparent' }}
     >
-      {/* Lighting */}
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 8, 5]} intensity={1.1} castShadow shadow-mapSize={[1024, 1024]} />
-      {/* Neon violet + fuchsia rim lights for the synthwave glow */}
       <pointLight position={[-5, 3, -4]} intensity={40} color="#a855f7" />
       <pointLight position={[5, 2, -5]} intensity={30} color="#d946ef" />
 
       <Suspense fallback={<SpinnerFallback />}>
         <Float speed={prefersReducedMotion ? 0 : 1.2} rotationIntensity={0} floatIntensity={0.4} floatingRange={[-0.04, 0.06]}>
-          <Turntable />
+          <Turntable color={color} speed={rotateSpeed} />
         </Float>
         <Environment preset="night" />
       </Suspense>
