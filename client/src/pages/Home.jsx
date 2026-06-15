@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { FaSearch, FaListUl, FaMapMarkedAlt, FaBolt } from 'react-icons/fa';
 import MapView from '../components/map/MapView';
 import SpotCard from '../components/spots/SpotCard';
+import CarViewer from '../components/car/CarViewer';
 import Loader from '../components/common/Loader';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useAvailabilitySocket } from '../hooks/useSocket';
@@ -52,30 +53,37 @@ export default function Home() {
       <section className="glass relative overflow-hidden p-8 sm:p-12">
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-brand-600/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-neon-500/20 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl text-center">
-          <span className="badge mx-auto mb-4 border border-white/10 bg-white/5 text-brand-200">
-            <FaBolt className="text-neon-400" /> Real-time availability
-          </span>
-          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
-            Find & book <span className="gradient-text">parking</span> near you
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-slate-400">
-            Reserve a guaranteed spot before you arrive — {available} of {spots.length} nearby spots open right now.
-          </p>
-          <form onSubmit={submitSearch} className="mx-auto mt-7 flex max-w-xl gap-2">
-            <div className="relative flex-1">
-              <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                className="input pl-11"
-                placeholder="Search by area, e.g. Indiranagar"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="btn-primary">
-              <FaSearch /> Search
-            </button>
-          </form>
+        <div className="relative grid items-center gap-8 lg:grid-cols-2">
+          <div className="text-center lg:text-left">
+            <span className="badge mb-4 border border-white/10 bg-white/5 text-brand-200">
+              <FaBolt className="text-neon-400" /> Real-time availability
+            </span>
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
+              Find & book <span className="gradient-text">parking</span> near you
+            </h1>
+            <p className="mt-3 max-w-xl text-slate-400 lg:mx-0">
+              Reserve a guaranteed spot before you arrive — {available} of {spots.length} nearby spots open right now.
+            </p>
+            <form onSubmit={submitSearch} className="mt-7 flex max-w-xl gap-2">
+              <div className="relative flex-1">
+                <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  className="input pl-11"
+                  placeholder="Search by area, e.g. Indiranagar"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+              <button type="submit" className="btn-primary">
+                <FaSearch /> Search
+              </button>
+            </form>
+          </div>
+
+          {/* Rotating 3D car showcase — desktop only to keep mobile light */}
+          <div className="hidden lg:block">
+            <CarViewer height="h-72" />
+          </div>
         </div>
       </section>
 
