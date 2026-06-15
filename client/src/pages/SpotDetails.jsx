@@ -7,6 +7,7 @@ import {
 import Loader from '../components/common/Loader';
 import StarRating from '../components/common/StarRating';
 import AvailabilityBadge from '../components/common/AvailabilityBadge';
+import CarViewer from '../components/car/CarViewer';
 import { getSpot, getReviews, addReview, toggleHelpful } from '../services/spotService';
 import { useAvailabilitySocket } from '../hooks/useSocket';
 import { useAuthStore } from '../store/authStore';
@@ -198,6 +199,12 @@ export default function SpotDetails() {
         <aside className="lg:sticky lg:top-24 lg:h-fit">
           <div className="card relative overflow-hidden p-5">
             <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-brand-600/25 blur-2xl" />
+
+            {/* 3D car on a glowing turntable */}
+            <div className="relative -mx-1 -mt-1 mb-3">
+              <CarViewer fallbackImage={images[0]?.url} />
+            </div>
+
             <div className="relative">
               <div className="flex items-baseline justify-between">
                 <span className="text-3xl font-bold gradient-text">{formatCurrency(spot.pricing?.hourly)}</span>
