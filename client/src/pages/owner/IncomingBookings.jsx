@@ -6,11 +6,11 @@ import { getIncomingBookings, updateBookingStatus } from '../../services/booking
 import { formatCurrency } from '../../utils/helpers';
 
 const STATUS_STYLES = {
-  pending: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-green-100 text-green-700',
-  active: 'bg-blue-100 text-blue-700',
-  completed: 'bg-gray-100 text-gray-600',
-  cancelled: 'bg-red-100 text-red-700',
+  pending: 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-400/30',
+  confirmed: 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30',
+  active: 'bg-sky-500/15 text-sky-300 ring-1 ring-sky-400/30',
+  completed: 'bg-white/10 text-slate-300 ring-1 ring-white/15',
+  cancelled: 'bg-rose-500/15 text-rose-300 ring-1 ring-rose-400/30',
 };
 
 const TABS = ['all', 'confirmed', 'active', 'completed'];
@@ -47,17 +47,18 @@ export default function IncomingBookings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900">Incoming Bookings</h1>
+    <div className="mx-auto w-full max-w-5xl flex-1 px-3 py-8 sm:px-4">
+      <h1 className="text-2xl font-bold text-white">Incoming Bookings</h1>
+      <div className="mt-5" />
       <OwnerNav />
 
-      <div className="mb-4 flex gap-1 overflow-x-auto border-b border-gray-200">
+      <div className="mb-4 flex gap-1 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03] p-1">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium capitalize ${
-              tab === t ? 'border-brand-600 text-brand-700' : 'border-transparent text-gray-500'
+            className={`cursor-pointer whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium capitalize transition ${
+              tab === t ? 'bg-brand-gradient text-white shadow-glow-brand' : 'text-slate-400 hover:text-white'
             }`}
           >
             {t}
@@ -68,18 +69,18 @@ export default function IncomingBookings() {
       {loading ? (
         <Loader />
       ) : (
-        <div className="card divide-y divide-gray-100">
+        <div className="card divide-y divide-white/5">
           {bookings.map((b) => (
             <div key={b._id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-gray-900">{b.parkingSpot?.name}</p>
+                  <p className="font-medium text-white">{b.parkingSpot?.name}</p>
                   <span className={`badge ${STATUS_STYLES[b.status]}`}>{b.status}</span>
                 </div>
-                <p className="text-sm text-gray-500">
-                  {b.user?.name} · {b.vehicle?.number} · {formatCurrency(b.amount)}
+                <p className="text-sm text-slate-400">
+                  {b.user?.name} · {b.vehicle?.number} · <span className="text-brand-300">{formatCurrency(b.amount)}</span>
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-slate-500">
                   {new Date(b.startTime).toLocaleString()} → {new Date(b.endTime).toLocaleString()}
                 </p>
               </div>
@@ -97,7 +98,7 @@ export default function IncomingBookings() {
               </div>
             </div>
           ))}
-          {bookings.length === 0 && <p className="p-10 text-center text-gray-500">No bookings in this view.</p>}
+          {bookings.length === 0 && <p className="p-10 text-center text-slate-400">No bookings in this view.</p>}
         </div>
       )}
     </div>

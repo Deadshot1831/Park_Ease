@@ -48,12 +48,12 @@ export default function Search() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
+    <div className="mx-auto w-full max-w-7xl flex-1 px-3 py-6 sm:px-4">
       <form onSubmit={submit} className="mb-6 flex gap-2">
         <div className="relative flex-1">
-          <FaSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <FaSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
-            className="input pl-9"
+            className="input pl-10"
             placeholder="Search area or parking name…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -68,18 +68,18 @@ export default function Search() {
       <div className="flex gap-6">
         <aside className={`${showFilters ? 'block' : 'hidden'} w-full shrink-0 lg:block lg:w-64`}>
           <div className="card p-5">
-            <h3 className="mb-4 font-semibold text-gray-900">Filters</h3>
+            <h3 className="mb-4 font-semibold text-white">Filters</h3>
             <FilterPanel filters={filters} onChange={setFilters} />
           </div>
         </aside>
 
         <div className="flex-1">
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm text-gray-500">{loading ? 'Searching…' : `${spots.length} results`}</p>
+            <p className="text-sm text-slate-400">{loading ? 'Searching…' : `${spots.length} results`}</p>
             <select className="input w-auto" value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="distance">Nearest</option>
-              <option value="price">Cheapest</option>
-              <option value="rating">Top rated</option>
+              <option value="distance" className="bg-ink-850">Nearest</option>
+              <option value="price" className="bg-ink-850">Cheapest</option>
+              <option value="rating" className="bg-ink-850">Top rated</option>
             </select>
           </div>
 
@@ -91,7 +91,7 @@ export default function Search() {
                 <SpotCard key={s._id} spot={s} />
               ))}
               {spots.length === 0 && (
-                <p className="col-span-full py-10 text-center text-gray-500">No spots match your filters.</p>
+                <p className="col-span-full py-10 text-center text-slate-400">No spots match your filters.</p>
               )}
             </div>
           )}

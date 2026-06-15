@@ -30,14 +30,17 @@ export default function Login() {
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12">
-      <div className="card w-full max-w-md p-8 animate-fade-in">
-        <div className="mb-6 text-center">
-          <FaParking className="mx-auto text-3xl text-brand-600" />
-          <h1 className="mt-2 text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-sm text-gray-500">Log in to find and book parking</p>
+      <div className="card relative w-full max-w-md overflow-hidden p-8 animate-fade-in">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-brand-600/30 blur-3xl" />
+        <div className="relative mb-6 text-center">
+          <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-gradient shadow-glow-brand">
+            <FaParking className="text-xl text-white" />
+          </span>
+          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
+          <p className="text-sm text-slate-400">Log in to find and book parking</p>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={submit} className="relative space-y-4">
           <div>
             <label className="label">Email</label>
             <input
@@ -65,21 +68,21 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="my-4 flex items-center gap-3 text-xs text-gray-400">
-          <div className="h-px flex-1 bg-gray-200" /> OR <div className="h-px flex-1 bg-gray-200" />
+        <div className="relative my-4 flex items-center gap-3 text-xs text-slate-500">
+          <div className="h-px flex-1 bg-white/10" /> OR <div className="h-px flex-1 bg-white/10" />
         </div>
 
-        <a href={`${API_URL}/auth/google`} className="btn-secondary w-full">
-          <FaGoogle className="text-red-500" /> Continue with Google
+        <a href={`${API_URL}/auth/google`} className="btn-secondary relative w-full">
+          <FaGoogle className="text-rose-400" /> Continue with Google
         </a>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="relative mt-6 text-center text-sm text-slate-400">
           Don't have an account?{' '}
-          <Link to="/register" className="font-semibold text-brand-600 hover:underline">
+          <Link to="/register" className="font-semibold text-brand-300 hover:text-brand-200">
             Sign up
           </Link>
         </p>
-        <p className="mt-2 text-center text-xs text-gray-400">
+        <p className="relative mt-2 text-center text-xs text-slate-500">
           Demo: user@parkease.dev / password123
         </p>
       </div>

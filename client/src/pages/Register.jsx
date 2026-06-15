@@ -26,13 +26,16 @@ export default function Register() {
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12">
-      <div className="card w-full max-w-md p-8 animate-fade-in">
-        <div className="mb-6 text-center">
-          <FaParking className="mx-auto text-3xl text-brand-600" />
-          <h1 className="mt-2 text-2xl font-bold text-gray-900">Create your account</h1>
+      <div className="card relative w-full max-w-md overflow-hidden p-8 animate-fade-in">
+        <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-neon-500/25 blur-3xl" />
+        <div className="relative mb-6 text-center">
+          <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-gradient shadow-glow-brand">
+            <FaParking className="text-xl text-white" />
+          </span>
+          <h1 className="text-2xl font-bold text-white">Create your account</h1>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={submit} className="relative space-y-4">
           <div>
             <label className="label">Full name</label>
             <input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -60,8 +63,8 @@ export default function Register() {
                   type="button"
                   key={opt.v}
                   onClick={() => setForm({ ...form, role: opt.v })}
-                  className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
-                    form.role === opt.v ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-300 text-gray-600'
+                  className={`cursor-pointer rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                    form.role === opt.v ? 'border-brand-400/50 bg-brand-500/20 text-brand-200' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/10'
                   }`}
                 >
                   {opt.t}
@@ -74,9 +77,9 @@ export default function Register() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="relative mt-6 text-center text-sm text-slate-400">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-brand-600 hover:underline">
+          <Link to="/login" className="font-semibold text-brand-300 hover:text-brand-200">
             Log in
           </Link>
         </p>

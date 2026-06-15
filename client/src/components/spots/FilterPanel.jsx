@@ -24,17 +24,17 @@ export default function FilterPanel({ filters, onChange, className = '' }) {
           step="5"
           value={filters.maxPrice || 100}
           onChange={(e) => set('maxPrice', e.target.value === '100' ? '' : e.target.value)}
-          className="w-full accent-brand-600"
+          className="w-full cursor-pointer accent-brand-500"
         />
-        <div className="text-sm text-gray-500">{filters.maxPrice ? `Up to ₹${filters.maxPrice}` : 'Any price'}</div>
+        <div className="text-sm text-slate-400">{filters.maxPrice ? `Up to ₹${filters.maxPrice}` : 'Any price'}</div>
       </div>
 
       <div>
         <label className="label">Type</label>
-        <select className="input" value={filters.type || ''} onChange={(e) => set('type', e.target.value)}>
-          <option value="">All types</option>
+        <select className="input capitalize" value={filters.type || ''} onChange={(e) => set('type', e.target.value)}>
+          <option value="" className="bg-ink-850">All types</option>
           {TYPES.map((t) => (
-            <option key={t} value={t} className="capitalize">
+            <option key={t} value={t} className="bg-ink-850 capitalize">
               {t}
             </option>
           ))}
@@ -44,16 +44,16 @@ export default function FilterPanel({ filters, onChange, className = '' }) {
       <div>
         <label className="label">Minimum rating</label>
         <select className="input" value={filters.minRating || ''} onChange={(e) => set('minRating', e.target.value)}>
-          <option value="">Any rating</option>
-          <option value="4">4+ stars</option>
-          <option value="4.5">4.5+ stars</option>
+          <option value="" className="bg-ink-850">Any rating</option>
+          <option value="4" className="bg-ink-850">4+ stars</option>
+          <option value="4.5" className="bg-ink-850">4.5+ stars</option>
         </select>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-700">
+      <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
         <input
           type="checkbox"
-          className="accent-brand-600"
+          className="h-4 w-4 cursor-pointer accent-brand-500"
           checked={filters.availableOnly === 'true'}
           onChange={(e) => set('availableOnly', e.target.checked ? 'true' : '')}
         />
@@ -68,10 +68,10 @@ export default function FilterPanel({ filters, onChange, className = '' }) {
               key={key}
               type="button"
               onClick={() => toggleAmenity(key)}
-              className={`badge border ${
+              className={`badge cursor-pointer border transition-colors ${
                 selected.includes(key)
-                  ? 'border-brand-500 bg-brand-50 text-brand-700'
-                  : 'border-gray-200 bg-white text-gray-600'
+                  ? 'border-brand-400/50 bg-brand-500/20 text-brand-200'
+                  : 'border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/10'
               }`}
             >
               {label}

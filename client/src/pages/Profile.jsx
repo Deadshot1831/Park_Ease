@@ -30,7 +30,7 @@ export default function Profile() {
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+      <h1 className="text-2xl font-bold text-white">My Profile</h1>
 
       <div className="card mt-6 space-y-4 p-6">
         <div>
@@ -39,7 +39,7 @@ export default function Profile() {
         </div>
         <div>
           <label className="label">Email</label>
-          <input className="input bg-gray-50" value={user.email} disabled />
+          <input className="input cursor-not-allowed opacity-60" value={user.email} disabled />
         </div>
         <div>
           <label className="label">Phone</label>
@@ -48,26 +48,26 @@ export default function Profile() {
       </div>
 
       <div className="card mt-6 p-6">
-        <h2 className="mb-3 font-semibold text-gray-900">My Vehicles</h2>
+        <h2 className="mb-3 font-semibold text-white">My Vehicles</h2>
         <div className="space-y-2">
           {vehicles.map((v, i) => (
-            <div key={i} className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2">
-              <span className="text-sm">
-                <span className="font-medium">{v.number}</span>
-                <span className="text-gray-400"> · {v.type}{v.model ? ` · ${v.model}` : ''}</span>
+            <div key={i} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+              <span className="text-sm text-slate-200">
+                <span className="font-medium text-white">{v.number}</span>
+                <span className="text-slate-500"> · {v.type}{v.model ? ` · ${v.model}` : ''}</span>
               </span>
-              <button onClick={() => setVehicles((vs) => vs.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-600">
+              <button onClick={() => setVehicles((vs) => vs.filter((_, idx) => idx !== i))} className="cursor-pointer text-rose-400/70 transition hover:text-rose-400">
                 <FaTrash size={14} />
               </button>
             </div>
           ))}
-          {vehicles.length === 0 && <p className="text-sm text-gray-400">No vehicles added.</p>}
+          {vehicles.length === 0 && <p className="text-sm text-slate-500">No vehicles added.</p>}
         </div>
 
         <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto_1fr_auto]">
           <input className="input" placeholder="Number" value={newVehicle.number} onChange={(e) => setNewVehicle({ ...newVehicle, number: e.target.value })} />
           <select className="input" value={newVehicle.type} onChange={(e) => setNewVehicle({ ...newVehicle, type: e.target.value })}>
-            {['car', 'bike', 'suv', 'truck', 'other'].map((t) => <option key={t} value={t}>{t}</option>)}
+            {['car', 'bike', 'suv', 'truck', 'other'].map((t) => <option key={t} value={t} className="bg-ink-850">{t}</option>)}
           </select>
           <input className="input" placeholder="Model (optional)" value={newVehicle.model} onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })} />
           <button onClick={addVehicle} className="btn-secondary"><FaPlus /></button>

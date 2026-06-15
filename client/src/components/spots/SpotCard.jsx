@@ -11,39 +11,40 @@ export default function SpotCard({ spot, distanceKm }) {
   return (
     <Link
       to={`/spots/${spot._id}`}
-      className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-elevated"
+      className="card card-hover group flex flex-col overflow-hidden"
     >
-      <div className="relative h-40 overflow-hidden bg-gray-100">
+      <div className="relative h-40 overflow-hidden">
         <img
           src={image}
           alt={spot.name}
-          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          className="h-full w-full object-cover opacity-90 transition-transform duration-300 group-hover:scale-105 group-hover:opacity-100"
           loading="lazy"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-950/80 via-transparent to-transparent" />
         <div className="absolute left-2 top-2">
           <AvailabilityBadge available={spot.availableSpots} total={spot.totalSpots} />
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="line-clamp-1 font-semibold text-gray-900">{spot.name}</h3>
+          <h3 className="line-clamp-1 font-semibold text-white">{spot.name}</h3>
           {spot.averageRating > 0 && (
-            <span className="flex shrink-0 items-center gap-1 text-sm font-medium text-gray-700">
+            <span className="flex shrink-0 items-center gap-1 text-sm font-medium text-slate-200">
               <FaStar className="text-amber-400" /> {spot.averageRating}
             </span>
           )}
         </div>
-        <p className="line-clamp-1 flex items-center gap-1 text-sm text-gray-500">
+        <p className="line-clamp-1 flex items-center gap-1 text-sm text-slate-400">
           <FaMapMarkerAlt className="shrink-0 text-brand-400" />
           {spot.address?.formatted || `${spot.address?.street}, ${spot.address?.city}`}
         </p>
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-lg font-bold text-brand-700">
+        <div className="mt-2 flex items-center justify-between border-t border-white/5 pt-2.5">
+          <span className="text-lg font-bold gradient-text">
             {formatCurrency(spot.pricing?.hourly)}
-            <span className="text-xs font-normal text-gray-400">/hr</span>
+            <span className="text-xs font-normal text-slate-500">/hr</span>
           </span>
           {(distanceKm != null || spot.distance != null) && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-slate-500">
               {(distanceKm ?? spot.distance / 1000).toFixed(1)} km away
             </span>
           )}

@@ -125,15 +125,16 @@ export default function Booking() {
   if (confirmed) {
     return (
       <div className="mx-auto w-full max-w-lg flex-1 px-4 py-12">
-        <div className="card p-8 text-center animate-fade-in">
-          <FaCheckCircle className="mx-auto text-5xl text-green-500" />
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">Booking Confirmed!</h1>
-          <p className="mt-1 text-gray-500">{spot.name}</p>
+        <div className="card relative overflow-hidden p-8 text-center animate-fade-in">
+          <div className="pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-emerald-500/20 blur-3xl" />
+          <FaCheckCircle className="relative mx-auto text-5xl text-emerald-400" />
+          <h1 className="relative mt-4 text-2xl font-bold text-white">Booking Confirmed!</h1>
+          <p className="relative mt-1 text-slate-400">{spot.name}</p>
           {confirmed.qrCode && (
-            <img src={confirmed.qrCode} alt="Booking QR code" className="mx-auto mt-4 h-44 w-44" />
+            <img src={confirmed.qrCode} alt="Booking QR code" className="relative mx-auto mt-4 h-44 w-44 rounded-xl bg-white p-2" />
           )}
-          <p className="mt-2 text-sm text-gray-500">Show this QR code at the entrance.</p>
-          <div className="mt-6 flex gap-2">
+          <p className="relative mt-2 text-sm text-slate-400">Show this QR code at the entrance.</p>
+          <div className="relative mt-6 flex gap-2">
             <button onClick={() => navigate('/my-bookings')} className="btn-primary flex-1">
               My Bookings
             </button>
@@ -148,8 +149,8 @@ export default function Booking() {
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900">Book {spot.name}</h1>
-      <p className="mt-1 text-gray-500">{spot.address?.formatted}</p>
+      <h1 className="text-2xl font-bold text-white">Book {spot.name}</h1>
+      <p className="mt-1 text-slate-400">{spot.address?.formatted}</p>
 
       <form onSubmit={handlePay} className="card mt-6 space-y-4 p-6">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -172,24 +173,24 @@ export default function Booking() {
             <label className="label">Vehicle type</label>
             <select className="input" value={form.vehicleType} onChange={(e) => setForm({ ...form, vehicleType: e.target.value })}>
               {['car', 'bike', 'suv', 'truck', 'other'].map((t) => (
-                <option key={t} value={t} className="capitalize">{t}</option>
+                <option key={t} value={t} className="bg-ink-850 capitalize">{t}</option>
               ))}
             </select>
           </div>
         </div>
 
-        <div className="rounded-lg bg-gray-50 p-4">
-          <div className="flex justify-between text-sm text-gray-600">
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="flex justify-between text-sm text-slate-400">
             <span>Duration</span>
             <span>{hours.toFixed(1)} hrs</span>
           </div>
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-sm text-slate-400">
             <span>Rate</span>
             <span>{formatCurrency(spot.pricing?.hourly)}/hr</span>
           </div>
-          <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 text-base font-bold text-gray-900">
+          <div className="mt-2 flex justify-between border-t border-white/10 pt-2 text-base font-bold text-white">
             <span>Total</span>
-            <span>{formatCurrency(amount)}</span>
+            <span className="gradient-text">{formatCurrency(amount)}</span>
           </div>
         </div>
 

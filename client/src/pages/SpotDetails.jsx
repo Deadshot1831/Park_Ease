@@ -91,17 +91,17 @@ export default function SpotDetails() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+    <div className="mx-auto w-full max-w-6xl flex-1 px-3 py-6 sm:px-4">
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main */}
         <div className="lg:col-span-2">
-          <div className="overflow-hidden rounded-xl">
+          <div className="overflow-hidden rounded-2xl border border-white/10">
             <img src={images[activeImg].url} alt={spot.name} className="h-72 w-full object-cover" />
           </div>
           {images.length > 1 && (
             <div className="mt-2 flex gap-2 overflow-x-auto">
               {images.map((img, i) => (
-                <button key={i} onClick={() => setActiveImg(i)} className={`h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 ${i === activeImg ? 'border-brand-500' : 'border-transparent'}`}>
+                <button key={i} onClick={() => setActiveImg(i)} className={`h-16 w-20 shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 transition ${i === activeImg ? 'border-brand-400' : 'border-white/10 opacity-70 hover:opacity-100'}`}>
                   <img src={img.url} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
@@ -110,32 +110,32 @@ export default function SpotDetails() {
 
           <div className="mt-6 flex items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{spot.name}</h1>
-              <p className="mt-1 flex items-center gap-1.5 text-gray-500">
+              <h1 className="text-2xl font-bold text-white">{spot.name}</h1>
+              <p className="mt-1 flex items-center gap-1.5 text-slate-400">
                 <FaMapMarkerAlt className="text-brand-400" />
                 {spot.address?.formatted || `${spot.address?.street}, ${spot.address?.city}`}
               </p>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="flex items-center gap-1 text-sm font-medium">
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <span className="flex items-center gap-1 text-sm font-medium text-slate-200">
                   <FaStar className="text-amber-400" /> {spot.averageRating || 'New'} · {spot.totalReviews} reviews
                 </span>
                 <AvailabilityBadge available={spot.availableSpots} total={spot.totalSpots} />
               </div>
             </div>
-            <button onClick={handleFavorite} className="btn-ghost text-xl" aria-label="Favorite">
-              {isFavorite ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+            <button onClick={handleFavorite} className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl transition hover:bg-white/10" aria-label="Favorite">
+              {isFavorite ? <FaHeart className="text-rose-400" /> : <FaRegHeart className="text-slate-300" />}
             </button>
           </div>
 
-          {spot.description && <p className="mt-4 text-gray-600">{spot.description}</p>}
+          {spot.description && <p className="mt-4 text-slate-300">{spot.description}</p>}
 
           {/* Amenities */}
           {spot.amenities?.length > 0 && (
             <div className="mt-6">
-              <h3 className="mb-2 font-semibold text-gray-900">Amenities</h3>
+              <h3 className="mb-2 font-semibold text-white">Amenities</h3>
               <div className="flex flex-wrap gap-2">
                 {spot.amenities.map((a) => (
-                  <span key={a} className="badge bg-gray-100 text-gray-700">
+                  <span key={a} className="badge border border-white/10 bg-white/5 text-slate-300">
                     {AMENITY_LABELS[a] || a}
                   </span>
                 ))}
@@ -144,7 +144,7 @@ export default function SpotDetails() {
           )}
 
           {/* Hours */}
-          <div className="mt-6 flex items-center gap-2 text-sm text-gray-600">
+          <div className="mt-6 flex items-center gap-2 text-sm text-slate-400">
             <FaClock className="text-brand-400" />
             {spot.operatingHours?.is24x7
               ? 'Open 24×7'
@@ -153,11 +153,11 @@ export default function SpotDetails() {
 
           {/* Reviews */}
           <div className="mt-8">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">Reviews ({spot.totalReviews})</h3>
+            <h3 className="mb-4 text-lg font-semibold text-white">Reviews ({spot.totalReviews})</h3>
 
             <form onSubmit={submitReview} className="card mb-6 p-4">
               <div className="mb-2 flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-700">Your rating:</span>
+                <span className="text-sm font-medium text-slate-300">Your rating:</span>
                 <StarRating value={form.rating} onChange={(r) => setForm({ ...form, rating: r })} size={20} />
               </div>
               <textarea
@@ -170,56 +170,59 @@ export default function SpotDetails() {
               <button type="submit" className="btn-primary mt-3" disabled={submitting}>
                 {submitting ? 'Posting…' : 'Post review'}
               </button>
-              <p className="mt-2 text-xs text-gray-400">You can only review spots you've booked.</p>
+              <p className="mt-2 text-xs text-slate-500">You can only review spots you've booked.</p>
             </form>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {reviews.map((r) => (
                 <div key={r._id} className="card p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">{r.user?.name || 'User'}</span>
+                      <span className="font-medium text-white">{r.user?.name || 'User'}</span>
                       <StarRating value={r.rating} size={14} />
                     </div>
-                    <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString()}</span>
+                    <span className="text-xs text-slate-500">{new Date(r.createdAt).toLocaleDateString()}</span>
                   </div>
-                  {r.comment && <p className="mt-2 text-sm text-gray-600">{r.comment}</p>}
-                  <button onClick={() => vote(r._id)} className="mt-2 text-xs text-gray-400 hover:text-brand-600">
+                  {r.comment && <p className="mt-2 text-sm text-slate-300">{r.comment}</p>}
+                  <button onClick={() => vote(r._id)} className="mt-2 cursor-pointer text-xs text-slate-500 transition hover:text-brand-300">
                     👍 Helpful ({r.helpfulCount || 0})
                   </button>
                 </div>
               ))}
-              {reviews.length === 0 && <p className="text-sm text-gray-500">No reviews yet — be the first!</p>}
+              {reviews.length === 0 && <p className="text-sm text-slate-500">No reviews yet — be the first!</p>}
             </div>
           </div>
         </div>
 
-        {/* Booking sidebar */}
-        <aside className="lg:sticky lg:top-20 lg:h-fit">
-          <div className="card p-5">
-            <div className="flex items-baseline justify-between">
-              <span className="text-2xl font-bold text-brand-700">{formatCurrency(spot.pricing?.hourly)}</span>
-              <span className="text-sm text-gray-400">per hour</span>
-            </div>
-            <div className="mt-2 space-y-1 text-sm text-gray-500">
-              {spot.pricing?.daily > 0 && <div>Daily: {formatCurrency(spot.pricing.daily)}</div>}
-              {spot.pricing?.monthly > 0 && <div>Monthly: {formatCurrency(spot.pricing.monthly)}</div>}
-            </div>
+        {/* Booking sidebar — reference-style glowing detail panel */}
+        <aside className="lg:sticky lg:top-24 lg:h-fit">
+          <div className="card relative overflow-hidden p-5">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-brand-600/25 blur-2xl" />
+            <div className="relative">
+              <div className="flex items-baseline justify-between">
+                <span className="text-3xl font-bold gradient-text">{formatCurrency(spot.pricing?.hourly)}</span>
+                <span className="text-sm text-slate-500">per hour</span>
+              </div>
+              <div className="mt-2 space-y-1 text-sm text-slate-400">
+                {spot.pricing?.daily > 0 && <div>Daily: {formatCurrency(spot.pricing.daily)}</div>}
+                {spot.pricing?.monthly > 0 && <div>Monthly: {formatCurrency(spot.pricing.monthly)}</div>}
+              </div>
 
-            <div className="my-4 rounded-lg bg-gray-50 p-3 text-center text-sm">
-              <span className="font-semibold text-gray-900">{spot.availableSpots}</span>
-              <span className="text-gray-500"> of {spot.totalSpots} spots free</span>
-            </div>
+              <div className="my-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-center text-sm">
+                <span className="text-lg font-bold text-white">{spot.availableSpots}</span>
+                <span className="text-slate-400"> of {spot.totalSpots} spots free</span>
+              </div>
 
-            <Link
-              to={`/booking/${spot._id}`}
-              className={`btn-primary w-full ${spot.availableSpots < 1 ? 'pointer-events-none opacity-50' : ''}`}
-            >
-              {spot.availableSpots < 1 ? 'Fully booked' : 'Book Now'}
-            </Link>
-            <a href={directionsUrl(lat, lng)} target="_blank" rel="noreferrer" className="btn-secondary mt-2 w-full">
-              <FaDirections /> Get Directions
-            </a>
+              <Link
+                to={`/booking/${spot._id}`}
+                className={`btn-primary w-full ${spot.availableSpots < 1 ? 'pointer-events-none opacity-50' : ''}`}
+              >
+                {spot.availableSpots < 1 ? 'Fully booked' : 'Book Now'}
+              </Link>
+              <a href={directionsUrl(lat, lng)} target="_blank" rel="noreferrer" className="btn-secondary mt-2 w-full">
+                <FaDirections /> Get Directions
+              </a>
+            </div>
           </div>
         </aside>
       </div>

@@ -8,6 +8,20 @@ import SpotCard from '../spots/SpotCard';
 const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const containerStyle = { width: '100%', height: '100%' };
 
+// Dark map theme to match the glassmorphic UI
+const DARK_MAP_STYLE = [
+  { elementType: 'geometry', stylers: [{ color: '#0d0d16' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#0d0d16' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#9ca3c4' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1c1a2b' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#15131f' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a0a12' }] },
+  { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#161425' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#13211b' }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1c1a2b' }] },
+  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#2a2740' }] },
+];
+
 // Builds a coloured SVG pin data URL for a given availability level
 const pinIcon = (level) => {
   const color = availabilityColor[level];
@@ -21,15 +35,15 @@ const pinIcon = (level) => {
 function MapFallback({ spots }) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-        <FaMapMarkedAlt />
-        Map preview unavailable — set <code className="rounded bg-amber-100 px-1">VITE_GOOGLE_MAPS_API_KEY</code> to enable the interactive map.
+      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-400">
+        <FaMapMarkedAlt className="text-brand-400" />
+        Map preview unavailable — set <code className="rounded bg-white/10 px-1 text-brand-300">VITE_GOOGLE_MAPS_API_KEY</code> to enable the interactive map.
       </div>
       <div className="grid flex-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 lg:grid-cols-3">
         {spots.map((s) => (
           <SpotCard key={s._id} spot={s} />
         ))}
-        {spots.length === 0 && <p className="text-sm text-gray-500">No parking spots found here.</p>}
+        {spots.length === 0 && <p className="text-sm text-slate-500">No parking spots found here.</p>}
       </div>
     </div>
   );
@@ -46,7 +60,7 @@ export default function MapView({ center, spots = [], onMarkerClick }) {
   const handleLoad = useCallback(() => {}, []);
 
   if (!MAPS_KEY) return <MapFallback spots={spots} />;
-  if (!isLoaded) return <div className="flex h-full items-center justify-center text-gray-400">Loading map…</div>;
+  if (!isLoaded) return <div className="flex h-full items-center justify-center text-slate-400">Loading map…</div>;
 
   return (
     <GoogleMap
@@ -54,7 +68,7 @@ export default function MapView({ center, spots = [], onMarkerClick }) {
       center={mapCenter}
       zoom={13}
       onLoad={handleLoad}
-      options={{ streetViewControl: false, mapTypeControl: false, fullscreenControl: false }}
+      options={{ streetViewControl: false, mapTypeControl: false, fullscreenControl: false, styles: DARK_MAP_STYLE }}
     >
       <MarkerF
         position={mapCenter}

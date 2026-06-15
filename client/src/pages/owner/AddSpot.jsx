@@ -92,18 +92,19 @@ export default function AddSpot() {
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900">Add a Parking Spot</h1>
+      <h1 className="text-2xl font-bold text-white">Add a Parking Spot</h1>
+      <div className="mt-5" />
       <OwnerNav />
 
       {/* Stepper */}
       <div className="mb-6 flex items-center gap-2">
         {STEPS.map((s, i) => (
           <div key={s} className="flex flex-1 items-center gap-2">
-            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${i <= step ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition ${i <= step ? 'bg-brand-gradient text-white shadow-glow-brand' : 'bg-white/10 text-slate-500'}`}>
               {i + 1}
             </div>
-            <span className={`hidden text-xs sm:block ${i === step ? 'font-medium text-gray-900' : 'text-gray-400'}`}>{s}</span>
-            {i < STEPS.length - 1 && <div className="h-px flex-1 bg-gray-200" />}
+            <span className={`hidden text-xs sm:block ${i === step ? 'font-medium text-white' : 'text-slate-500'}`}>{s}</span>
+            {i < STEPS.length - 1 && <div className="h-px flex-1 bg-white/10" />}
           </div>
         ))}
       </div>
@@ -122,14 +123,14 @@ export default function AddSpot() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="label">Listing type</label>
-                <select className="input" value={form.type} onChange={(e) => set('type', e.target.value)}>
-                  {['commercial', 'street', 'private'].map((t) => <option key={t} value={t}>{t}</option>)}
+                <select className="input capitalize" value={form.type} onChange={(e) => set('type', e.target.value)}>
+                  {['commercial', 'street', 'private'].map((t) => <option key={t} value={t} className="bg-ink-850 capitalize">{t}</option>)}
                 </select>
               </div>
               <div>
                 <label className="label">Parking type</label>
-                <select className="input" value={form.parkingType} onChange={(e) => set('parkingType', e.target.value)}>
-                  {['covered', 'open', 'underground', 'multilevel'].map((t) => <option key={t} value={t}>{t}</option>)}
+                <select className="input capitalize" value={form.parkingType} onChange={(e) => set('parkingType', e.target.value)}>
+                  {['covered', 'open', 'underground', 'multilevel'].map((t) => <option key={t} value={t} className="bg-ink-850 capitalize">{t}</option>)}
                 </select>
               </div>
             </div>
@@ -151,7 +152,7 @@ export default function AddSpot() {
               <div><label className="label">Latitude</label><input className="input" value={form.lat} onChange={(e) => set('lat', e.target.value)} /></div>
               <div><label className="label">Longitude</label><input className="input" value={form.lng} onChange={(e) => set('lng', e.target.value)} /></div>
             </div>
-            <p className="text-xs text-gray-400">Tip: right-click a location in Google Maps to copy its lat,lng.</p>
+            <p className="text-xs text-slate-500">Tip: right-click a location in Google Maps to copy its lat,lng.</p>
           </>
         )}
 
@@ -163,8 +164,8 @@ export default function AddSpot() {
               <div><label className="label">Daily (₹)</label><input type="number" className="input" value={form.daily} onChange={(e) => set('daily', e.target.value)} /></div>
               <div><label className="label">Monthly (₹)</label><input type="number" className="input" value={form.monthly} onChange={(e) => set('monthly', e.target.value)} /></div>
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" className="accent-brand-600" checked={form.is24x7} onChange={(e) => set('is24x7', e.target.checked)} /> Open 24×7
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
+              <input type="checkbox" className="h-4 w-4 cursor-pointer accent-brand-500" checked={form.is24x7} onChange={(e) => set('is24x7', e.target.checked)} /> Open 24×7
             </label>
             {!form.is24x7 && (
               <div className="grid grid-cols-2 gap-4">
@@ -176,7 +177,7 @@ export default function AddSpot() {
               <label className="label">Amenities</label>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(AMENITY_LABELS).map(([key, label]) => (
-                  <button key={key} type="button" onClick={() => toggleAmenity(key)} className={`badge border ${form.amenities.includes(key) ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-600'}`}>
+                  <button key={key} type="button" onClick={() => toggleAmenity(key)} className={`badge cursor-pointer border transition-colors ${form.amenities.includes(key) ? 'border-brand-400/50 bg-brand-500/20 text-brand-200' : 'border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/10'}`}>
                     {label}
                   </button>
                 ))}
@@ -188,13 +189,19 @@ export default function AddSpot() {
         {step === 3 && (
           <>
             <label className="label">Photos</label>
-            <input type="file" accept="image/*" multiple onChange={handleUpload} className="text-sm" />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleUpload}
+              className="block w-full cursor-pointer text-sm text-slate-400 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-brand-500/20 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-brand-200 hover:file:bg-brand-500/30"
+            />
             <div className="mt-3 flex flex-wrap gap-2">
               {images.map((img, i) => (
-                <img key={i} src={img.url} alt="" className="h-20 w-24 rounded-lg object-cover" />
+                <img key={i} src={img.url} alt="" className="h-20 w-24 rounded-xl border border-white/10 object-cover" />
               ))}
             </div>
-            {images.length === 0 && <p className="text-xs text-gray-400">Photos are optional but boost bookings.</p>}
+            {images.length === 0 && <p className="text-xs text-slate-500">Photos are optional but boost bookings.</p>}
           </>
         )}
 
