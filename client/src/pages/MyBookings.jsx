@@ -92,6 +92,11 @@ export default function MyBookings() {
                 </p>
               </div>
               <div className="flex gap-2">
+                {['confirmed', 'active'].includes(b.status) && (
+                  <Link to="/guard" className="btn-secondary text-xs">
+                    Monitor
+                  </Link>
+                )}
                 {b.qrCode && (
                   <button onClick={() => setQr(b.qrCode)} className="btn-secondary text-xs">
                     QR

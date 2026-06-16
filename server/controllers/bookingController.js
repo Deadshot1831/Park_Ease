@@ -85,7 +85,7 @@ const getMyBookings = asyncHandler(async (req, res) => {
   if (req.query.status) filter.status = req.query.status;
 
   const bookings = await Booking.find(filter)
-    .populate('parkingSpot', 'name address images pricing location')
+    .populate('parkingSpot', 'name address images pricing location availableSpots totalSpots')
     .sort({ startTime: -1 });
   res.json({ success: true, count: bookings.length, bookings });
 });

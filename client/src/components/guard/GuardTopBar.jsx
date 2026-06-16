@@ -4,7 +4,7 @@ import { FaMapMarkerAlt, FaBell, FaCog } from 'react-icons/fa';
 
 const TABS = ['Dashboard', 'Calendar', 'Reports', 'Emergency'];
 
-export default function GuardTopBar() {
+export default function GuardTopBar({ location = '13 Skyline, Chicago, 60611' }) {
   const [active, setActive] = useState('Dashboard');
   return (
     <header className="flex items-center justify-between gap-4">
@@ -27,8 +27,8 @@ export default function GuardTopBar() {
       </nav>
 
       <div className="flex items-center gap-2">
-        <div className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-slate-200 sm:flex">
-          <FaMapMarkerAlt className="text-brand-400" /> 13 Skyline, Chicago, 60611
+        <div className="hidden max-w-[260px] items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-slate-200 sm:flex">
+          <FaMapMarkerAlt className="shrink-0 text-brand-400" /> <span className="truncate">{location}</span>
         </div>
         <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label="Notifications">
           <FaBell />
