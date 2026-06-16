@@ -1,15 +1,28 @@
-import { Suspense, useEffect } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { OrthographicCamera, Environment, Html, ContactShadows } from '@react-three/drei';
+import { Suspense, useRef } from 'react';
+import { Canvas, useThree, useFrame } from '@react-three/fiber';
+import { Environment, Html, ContactShadows } from '@react-three/drei';
+import * as THREE from 'three';
 import { useCarClone } from '../car/carUtils';
 
-// Aim the orthographic camera at the cars (drei's camera doesn't auto-look at origin)
-function CameraRig() {
+const RADIUS = 16.3; // matches the default [11,9,12]-ish framing
+
+// Drives the orthographic camera from a shared control ref (yaw/pitch/zoom),
+// so external D-pad / zoom buttons can move the camera smoothly.
+function CameraController({ control }) {
   const { camera } = useThree();
-  useEffect(() => {
+  const tmp = useRef(new THREE.Vector3());
+  useFrame(() => {
+    const c = control?.current;
+    if (!c) return;
+    const x = RADIUS * Math.sin(c.yaw);
+    const z = RADIUS * Math.cos(c.yaw);
+    const y = c.pitch;
+    tmp.current.set(x, y, z);
+    camera.position.lerp(tmp.current, 0.18);
+    camera.zoom += (c.zoom - camera.zoom) * 0.18;
     camera.lookAt(0, 0.4, 0);
     camera.updateProjectionMatrix();
-  }, [camera]);
+  });
   return null;
 }
 
@@ -18,22 +31,20 @@ function ParkedCar({ color, position, rotation = [0, 0, 0] }) {
   return <primitive object={model} position={position} rotation={rotation} />;
 }
 
-// White parking-bay lines painted on the floor
 function BayLines() {
-  const lines = [];
   const xs = [-4.6, -1.6, 1.6, 4.6];
-  xs.forEach((x, i) => {
-    lines.push(
-      <mesh key={i} rotation-x={-Math.PI / 2} position={[x, 0.02, 0]}>
-        <planeGeometry args={[0.12, 9]} />
-        <meshBasicMaterial color="#c9cede" transparent opacity={0.55} toneMapped={false} />
-      </mesh>
-    );
-  });
-  return <group>{lines}</group>;
+  return (
+    <group>
+      {xs.map((x, i) => (
+        <mesh key={i} rotation-x={-Math.PI / 2} position={[x, 0.02, 0]}>
+          <planeGeometry args={[0.12, 9]} />
+          <meshBasicMaterial color="#c9cede" transparent opacity={0.55} toneMapped={false} />
+        </mesh>
+      ))}
+    </group>
+  );
 }
 
-// Red "monitored lane" glow flanking the highlighted car
 function MonitoredLane() {
   return (
     <group>
@@ -43,7 +54,6 @@ function MonitoredLane() {
           <meshBasicMaterial color="#ff2d55" toneMapped={false} />
         </mesh>
       ))}
-      {/* soft red wash on the floor */}
       <mesh rotation-x={-Math.PI / 2} position={[0, 0.025, 0.8]}>
         <planeGeometry args={[3, 7]} />
         <meshBasicMaterial color="#ff2d55" transparent opacity={0.12} toneMapped={false} />
@@ -56,13 +66,10 @@ function MonitoredLane() {
 function SceneContent() {
   return (
     <>
-      {/* Floor */}
       <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
         <planeGeometry args={[60, 60]} />
         <meshStandardMaterial color="#0c0c15" metalness={0.5} roughness={0.55} />
       </mesh>
-
-      {/* Back + side walls to suggest the garage */}
       <mesh position={[0, 4, -7]} receiveShadow>
         <planeGeometry args={[60, 16]} />
         <meshStandardMaterial color="#0a0a12" metalness={0.2} roughness={0.9} />
@@ -77,12 +84,10 @@ function SceneContent() {
       <BayLines />
       <MonitoredLane />
 
-      {/* Three parked cars — the white one is the "monitored" vehicle */}
       <ParkedCar color="#0f0e16" position={[-3.05, 0, -0.2]} rotation={[0, 0.06, 0]} />
       <ParkedCar color="#e9ebf2" position={[0, 0, 0.4]} rotation={[0, -0.04, 0]} />
       <ParkedCar color="#161320" position={[3.05, 0, -0.1]} rotation={[0, 0.12, 0]} />
 
-      {/* Lighting */}
       <ambientLight intensity={0.35} />
       <directionalLight
         position={[6, 12, 4]}
@@ -114,20 +119,20 @@ function Fallback() {
   );
 }
 
-export default function GarageScene() {
+export default function GarageScene({ control }) {
   const isMobile =
     typeof navigator !== 'undefined' && /iPhone|iPad|Android/i.test(navigator.userAgent);
   return (
     <Canvas
       shadows
+      orthographic
       dpr={isMobile ? 1 : [1, 2]}
       gl={{ alpha: true, antialias: true }}
+      camera={{ position: [11, 9, 12], zoom: 46, near: -50, far: 100 }}
       performance={{ min: 0.5 }}
       style={{ background: 'transparent' }}
     >
-      {/* Isometric orthographic view */}
-      <OrthographicCamera makeDefault position={[11, 9, 12]} zoom={46} near={-50} far={100} />
-      <CameraRig />
+      <CameraController control={control} />
       <Suspense fallback={<Fallback />}>
         <SceneContent />
       </Suspense>

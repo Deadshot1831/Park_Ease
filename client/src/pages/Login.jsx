@@ -36,7 +36,8 @@ export default function Login() {
           <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-gradient shadow-glow-brand">
             <FaParking className="text-xl text-white" />
           </span>
-          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
+          <p className="text-lg font-bold tracking-tight text-white">Park<span className="gradient-text">Ease</span></p>
+          <h1 className="mt-1 text-2xl font-bold text-white">Welcome back</h1>
           <p className="text-sm text-slate-400">Log in to find and book parking</p>
         </div>
 

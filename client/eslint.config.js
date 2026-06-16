@@ -22,6 +22,13 @@ export default defineConfig([
       // idiom throughout the app; the react-hooks v7 rule flags them as cascading
       // renders, which is a false positive for one-shot fetches here.
       'react-hooks/set-state-in-effect': 'off',
+      // Experimental React Compiler purity rule false-positives on legitimate
+      // imperative code: three.js camera mutation inside useFrame, ref updates in
+      // event handlers, and Date.now()/new Date() in render.
+      'react-hooks/purity': 'off',
+      // Same experimental rule-set: we intentionally mutate refs (camera control)
+      // and three.js objects imperatively, which this rule disallows.
+      'react-hooks/immutability': 'off',
     },
   },
 ])

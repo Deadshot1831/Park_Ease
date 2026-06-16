@@ -32,7 +32,8 @@ export default function Register() {
           <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-gradient shadow-glow-brand">
             <FaParking className="text-xl text-white" />
           </span>
-          <h1 className="text-2xl font-bold text-white">Create your account</h1>
+          <p className="text-lg font-bold tracking-tight text-white">Park<span className="gradient-text">Ease</span></p>
+          <h1 className="mt-1 text-2xl font-bold text-white">Create your account</h1>
         </div>
 
         <form onSubmit={submit} className="relative space-y-4">
