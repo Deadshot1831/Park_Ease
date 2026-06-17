@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
-const FRAME_COUNT = 48;
+// Frame count is read at runtime from /frames/manifest.json so a new Higgsfield
+// video can be dropped in via `npm run frames` with no code changes.
+const DEFAULT_FRAME_COUNT = 48;
 const framePath = (i) => `/frames/frame_${String(i + 1).padStart(4, '0')}.jpg`;
 
 const fade = {
@@ -12,8 +14,18 @@ const fade = {
 export default function ScrollHero() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
+  const [frameCount, setFrameCount] = useState(DEFAULT_FRAME_COUNT);
+
+  // Pick up the manifest written by the frame-extraction script
+  useEffect(() => {
+    fetch('/frames/manifest.json')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((m) => { if (m?.count > 0) setFrameCount(m.count); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
+    const FRAME_COUNT = frameCount;
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -79,7 +91,7 @@ export default function ScrollHero() {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', sizeCanvas);
     };
-  }, []);
+  }, [frameCount]);
 
   return (
     <div ref={containerRef} style={{ height: '300vh', position: 'relative' }}>
