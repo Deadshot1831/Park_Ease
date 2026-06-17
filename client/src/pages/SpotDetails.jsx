@@ -97,7 +97,15 @@ export default function SpotDetails() {
         {/* Main */}
         <div className="lg:col-span-2">
           <div className="overflow-hidden rounded-2xl border border-white/10">
-            <img src={images[activeImg].url} alt={spot.name} className="h-72 w-full object-cover" />
+            <img
+              src={images[activeImg].url}
+              alt=""
+              className="h-72 w-full object-cover"
+              onError={(e) => {
+                const ph = 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=800';
+                if (e.currentTarget.src !== ph) e.currentTarget.src = ph;
+              }}
+            />
           </div>
           {images.length > 1 && (
             <div className="mt-2 flex gap-2 overflow-x-auto">

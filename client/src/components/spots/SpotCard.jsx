@@ -16,9 +16,12 @@ export default function SpotCard({ spot, distanceKm }) {
       <div className="relative h-40 overflow-hidden">
         <img
           src={image}
-          alt={spot.name}
+          alt=""
           className="h-full w-full object-cover opacity-90 transition-transform duration-300 group-hover:scale-105 group-hover:opacity-100"
           loading="lazy"
+          onError={(e) => {
+            if (e.currentTarget.src !== PLACEHOLDER) e.currentTarget.src = PLACEHOLDER;
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-950/80 via-transparent to-transparent" />
         <div className="absolute left-2 top-2">
