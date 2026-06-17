@@ -1,13 +1,14 @@
-/* Luxury showcase design tokens — scoped under .lux to avoid touching the app */
+/* ParkEase showcase design tokens — scoped under .lux to avoid touching the app */
 .lux {
   --bg: #000000;
   --text: #ffffff;
   --body: #e5e5e5;
-  --accent: #c8a96e; /* Everose gold */
-  --accent-hover: #e8c98e;
-  --dim: #888888;
-  --border-subtle: rgba(200, 169, 110, 0.2);
-  --font-display: 'Playfair Display', Georgia, serif;
+  --accent: #a855f7; /* ParkEase violet */
+  --accent-2: #d946ef; /* fuchsia */
+  --accent-hover: #c084fc;
+  --dim: #8b8b96;
+  --border-subtle: rgba(168, 85, 247, 0.22);
+  --font-display: 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
 
   background: var(--bg);
@@ -21,42 +22,53 @@
   font-size: 0.65rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 500;
+  color: var(--accent-hover);
+  font-weight: 600;
 }
 
 .lux-display {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.05;
   color: var(--text);
+}
+
+.lux-gradient {
+  background: linear-gradient(120deg, #a855f7 0%, #d946ef 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .lux-btn {
   display: inline-block;
   font-family: var(--font-body);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding: 0.9rem 2.6rem;
-  background: var(--accent);
-  color: #000;
-  border: 1px solid var(--accent);
+  padding: 0.95rem 2.6rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(120deg, #7c3aed 0%, #d946ef 100%);
+  color: #fff;
+  border: 1px solid transparent;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  box-shadow: 0 8px 30px -6px rgba(124, 58, 237, 0.55);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
-.lux-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.lux-btn:hover { box-shadow: 0 0 40px -8px rgba(168, 85, 247, 0.7); }
 
 .lux-btn-outline {
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-hover);
   border: 1px solid var(--accent);
+  box-shadow: none;
 }
-.lux-btn-outline:hover { background: #000; color: var(--accent-hover); border-color: var(--accent-hover); }
+.lux-btn-outline:hover { background: rgba(168, 85, 247, 0.12); color: #fff; box-shadow: 0 0 40px -10px rgba(168, 85, 247, 0.6); }
 
-.lux-section { max-width: 1200px; margin: 0 auto; padding: 8rem 1.5rem; }
+.lux-section { max-width: 1200px; margin: 0 auto; padding: 8rem 1.5rem; position: relative; }
 
 @media (max-width: 768px) {
   .lux-section { padding: 5rem 1.25rem; }

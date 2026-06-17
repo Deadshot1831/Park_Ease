@@ -7,25 +7,25 @@ const item = {
 };
 
 const SPECS = [
-  ['Reference', 'MRD-12 · Everose'],
-  ['Engine', '6.5L naturally aspirated V12'],
-  ['Maximum power', '602 kW (819 hp) @ 9,250 rpm'],
-  ['Peak torque', '720 Nm @ 7,000 rpm'],
-  ['0–100 km/h', '2.9 seconds'],
-  ['Top speed', '340 km/h (electronically governed)'],
-  ['Transmission', '8-speed dual-clutch, rear-mounted'],
-  ['Chassis', 'Carbon-fibre monocoque'],
-  ['Kerb weight', '1,485 kg (dry)'],
-  ['Wheels', 'Forged 21" front · 22" rear, Everose finish'],
+  ['Parking spots', '12,000+ and growing'],
+  ['Cities covered', '40 across the region'],
+  ['Avg. time saved', '17 minutes per trip'],
+  ['Booking time', 'Under 60 seconds'],
+  ['Availability updates', 'Real-time (WebSocket)'],
+  ['Payments', 'Razorpay — UPI, cards, wallets'],
+  ['Confirmation', 'Instant QR pass'],
+  ['Monitoring', 'CCTV + impact alerts'],
+  ['Driver rating', '4.8 / 5 average'],
+  ['Support', '24/7 assistance'],
 ];
 
 export default function SpecsSection() {
   return (
     <section id="specs" className="lux-section">
       <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
-        <motion.span variants={item} className="lux-label">Technical Specifications</motion.span>
+        <motion.span variants={item} className="lux-label">By the Numbers</motion.span>
         <motion.h2 variants={item} className="lux-display" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', margin: '1rem 0 3rem' }}>
-          The architecture of precision.
+          The platform, <span className="lux-gradient">in numbers.</span>
         </motion.h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', columnGap: '4rem' }}>

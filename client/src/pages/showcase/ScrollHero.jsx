@@ -101,7 +101,7 @@ export default function ScrollHero() {
           }}
         >
           <motion.span custom={0} variants={fade} initial="hidden" animate="show" className="lux-label">
-            Bespoke · Everose Edition
+            ParkEase · Smart Parking, Reserved
           </motion.span>
           <motion.h1
             custom={1}
@@ -109,18 +109,19 @@ export default function ScrollHero() {
             initial="hidden"
             animate="show"
             className="lux-display"
-            style={{ fontSize: 'clamp(2.4rem, 6vw, 5.5rem)', margin: '1rem 0 0.6rem', maxWidth: '14ch' }}
+            style={{ fontSize: 'clamp(2.4rem, 6vw, 5.5rem)', margin: '1rem 0 0.6rem', maxWidth: '16ch' }}
           >
-            The Meridian GT
+            Never circle the block <span className="lux-gradient">again.</span>
           </motion.h1>
           <motion.p
             custom={2}
             variants={fade}
             initial="hidden"
             animate="show"
-            style={{ fontFamily: 'var(--font-body)', fontWeight: 300, color: '#E5E5E5', maxWidth: 460, lineHeight: 1.6 }}
+            style={{ fontFamily: 'var(--font-body)', fontWeight: 300, color: '#E5E5E5', maxWidth: 480, lineHeight: 1.6 }}
           >
-            A grand tourer machined from a single conviction — that motion, at its finest, should feel inevitable.
+            Find, compare and book a guaranteed parking spot near you — with real-time
+            availability and a space waiting before you arrive.
           </motion.p>
           <motion.a
             custom={3}
@@ -131,7 +132,7 @@ export default function ScrollHero() {
             className="lux-btn"
             style={{ marginTop: '2rem', pointerEvents: 'auto', alignSelf: 'flex-start' }}
           >
-            Explore Collection
+            Find Parking
           </motion.a>
         </div>
       </div>

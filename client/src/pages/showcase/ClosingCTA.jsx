@@ -33,22 +33,21 @@ export default function ClosingCTA() {
         viewport={{ once: true, amount: 0.3 }}
         style={{ position: 'relative', maxWidth: 720, margin: '0 auto' }}
       >
-        <motion.span variants={item} className="lux-label">Yours to Command</motion.span>
+        <motion.span variants={item} className="lux-label">Your Spot Is Waiting</motion.span>
         <motion.h2 variants={item} className="lux-display" style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)', margin: '1.2rem 0 1.4rem' }}>
-          A century of mastery.<br />
-          <span style={{ fontStyle: 'italic', color: '#E5E5E5' }}>One expression of it.</span>
+          Park with certainty.<br />
+          <span className="lux-gradient">Arrive with ease.</span>
         </motion.h2>
         <motion.p variants={item} style={{ fontFamily: 'var(--font-body)', fontWeight: 300, color: '#E5E5E5', maxWidth: 480, margin: '0 auto 2.4rem', lineHeight: 1.7 }}>
-          The Meridian GT is built to order, in limited number. When it arrives, give it a place worthy of the journey — reserved, secured, and waiting.
+          Join thousands of drivers who reserve their parking before they leave home.
+          Find a spot near you, lock it in, and skip the hunt entirely.
         </motion.p>
-        <motion.div variants={item}>
-          <MotionLink
-            to="/search"
-            className="lux-btn lux-btn-outline"
-            whileHover={{ scale: 1.035 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            Reserve Premium Parking
+        <motion.div variants={item} style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <MotionLink to="/search" className="lux-btn" whileHover={{ scale: 1.035 }} whileTap={{ scale: 0.98 }}>
+            Find Parking Now
+          </MotionLink>
+          <MotionLink to="/register" className="lux-btn lux-btn-outline" whileHover={{ scale: 1.035 }} whileTap={{ scale: 0.98 }}>
+            Create Free Account
           </MotionLink>
         </motion.div>
       </motion.div>
