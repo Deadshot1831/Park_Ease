@@ -1,0 +1,63 @@
+/* Luxury showcase design tokens — scoped under .lux to avoid touching the app */
+.lux {
+  --bg: #000000;
+  --text: #ffffff;
+  --body: #e5e5e5;
+  --accent: #c8a96e; /* Everose gold */
+  --accent-hover: #e8c98e;
+  --dim: #888888;
+  --border-subtle: rgba(200, 169, 110, 0.2);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.lux-label {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.lux-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+.lux-btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.6rem;
+  background: var(--accent);
+  color: #000;
+  border: 1px solid var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.lux-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.lux-btn-outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.lux-btn-outline:hover { background: #000; color: var(--accent-hover); border-color: var(--accent-hover); }
+
+.lux-section { max-width: 1200px; margin: 0 auto; padding: 8rem 1.5rem; }
+
+@media (max-width: 768px) {
+  .lux-section { padding: 5rem 1.25rem; }
+}
