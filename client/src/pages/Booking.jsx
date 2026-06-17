@@ -100,6 +100,13 @@ export default function Booking() {
         order_id: order.id,
         prefill: { name: user.name, email: user.email, contact: user.phone },
         theme: { color: '#7c3aed' },
+        modal: {
+          // User closed the checkout without paying — keep booking pending for retry
+          ondismiss: () => {
+            setProcessing(false);
+            toast('Payment cancelled — your booking is held under "My Bookings".', { icon: 'ℹ️' });
+          },
+        },
         handler: async (resp) => {
           try {
             const { booking: confirmedBooking } = await verifyPayment({
@@ -111,13 +118,21 @@ export default function Booking() {
             toast.success('Booking confirmed!');
           } catch (err) {
             toast.error(err.message);
+          } finally {
+            setProcessing(false);
           }
         },
       });
+      // Surface gateway-reported failures (card declined, etc.)
+      rzp.on('payment.failed', (resp) => {
+        setProcessing(false);
+        toast.error(resp.error?.description || 'Payment failed. Please try again.');
+      });
       rzp.open();
+      // Note: processing stays true while the modal is open; it is cleared in
+      // ondismiss / handler / payment.failed above.
     } catch (err) {
       toast.error(err.message);
-    } finally {
       setProcessing(false);
     }
   };

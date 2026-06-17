@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const ParkingSpot = require('../models/ParkingSpot');
+const Payment = require('../models/Payment');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { generateBookingQR } = require('../utils/generateQR');
 const { emitAvailabilityUpdate, emitToUser } = require('../services/socketService');
 const { sendBookingConfirmation } = require('../services/emailService');
+const { refundPayment } = require('../services/paymentService');
 
 // Compute price from spot pricing and duration in hours
 const computeAmount = (spot, hours) => {
@@ -157,7 +159,25 @@ const cancelBooking = asyncHandler(async (req, res) => {
     }
   }
 
-  res.json({ success: true, booking });
+  // Refund a paid booking (Razorpay refund, or mock in dev). Never fail the
+  // cancellation if the refund call errors — log and continue.
+  let refunded = false;
+  if (booking.payment) {
+    try {
+      const payment = await Payment.findById(booking.payment);
+      if (payment && payment.status === 'paid') {
+        const refund = await refundPayment(payment.razorpayPaymentId, payment.amount);
+        payment.status = 'refunded';
+        payment.refundId = refund?.id;
+        await payment.save();
+        refunded = true;
+      }
+    } catch (err) {
+      console.error('Refund failed:', err.message);
+    }
+  }
+
+  res.json({ success: true, booking, refunded });
 });
 
 // @route   PUT /api/bookings/:id/status  (owner/admin)

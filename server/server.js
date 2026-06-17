@@ -21,6 +21,15 @@ app.use(
     credentials: true,
   })
 );
+
+// Razorpay webhook needs the RAW request body to verify the signature, so it is
+// mounted with express.raw BEFORE the JSON body parser.
+app.post(
+  '/api/payments/webhook',
+  express.raw({ type: 'application/json' }),
+  require('./controllers/paymentController').webhook
+);
+
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
