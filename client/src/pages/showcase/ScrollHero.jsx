@@ -93,8 +93,12 @@ export default function ScrollHero() {
     };
   }, [frameCount]);
 
+  // Scale the scrollable length to the video length so every frame gets enough
+  // scroll distance (≈2vh/frame), keeping the scrub smooth and cinematic.
+  const heroHeight = Math.max(300, Math.round(100 + frameCount * 2));
+
   return (
-    <div ref={containerRef} style={{ height: '300vh', position: 'relative' }}>
+    <div ref={containerRef} style={{ height: `${heroHeight}vh`, position: 'relative' }}>
       <div style={{ position: 'sticky', top: 0, width: '100vw', height: '100vh', overflow: 'hidden', background: '#000' }}>
         <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
 
