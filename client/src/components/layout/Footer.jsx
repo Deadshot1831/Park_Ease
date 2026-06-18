@@ -1,4 +1,5 @@
-import { FaParking } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaParking, FaHeadset } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -10,8 +11,13 @@ export default function Footer() {
           </span>
           Park<span className="gradient-text">Ease</span>
         </div>
-        <p className="text-center">Smart parking, booked in advance — find, compare & reserve.</p>
-        <p>© {new Date().getFullYear()} ParkEase</p>
+        <p className="text-center">Smart parking, booked in advance — find, compare &amp; reserve.</p>
+        <div className="flex items-center gap-4">
+          <Link to="/help" className="flex items-center gap-1.5 text-slate-300 transition hover:text-brand-300">
+            <FaHeadset className="text-brand-400" /> Help &amp; Support
+          </Link>
+          <span>© {new Date().getFullYear()} ParkEase</span>
+        </div>
       </div>
     </footer>
   );

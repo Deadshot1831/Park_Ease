@@ -70,6 +70,7 @@ app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/uploads', require('./routes/uploads'));
+app.use('/api/support', require('./routes/support'));
 
 // --- Errors ---
 app.use(notFound);

@@ -16,6 +16,7 @@ const AuthCallback = lazy(() => import('./pages/AuthCallback'))
 const Profile = lazy(() => import('./pages/Profile'))
 const MyBookings = lazy(() => import('./pages/MyBookings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+const Help = lazy(() => import('./pages/Help'))
 const OwnerDashboard = lazy(() => import('./pages/owner/Dashboard'))
 const MyListings = lazy(() => import('./pages/owner/MyListings'))
 const AddSpot = lazy(() => import('./pages/owner/AddSpot'))
@@ -44,6 +45,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/help" element={<Help />} />
 
           <Route
             path="/booking/:spotId"

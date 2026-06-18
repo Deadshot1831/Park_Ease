@@ -45,6 +45,9 @@ export default function Navbar() {
           <NavLink to="/showcase" className={pill}>
             Showcase
           </NavLink>
+          <NavLink to="/help" className={pill}>
+            Help
+          </NavLink>
           {user && (
             <NavLink to="/my-bookings" className={pill}>
               My Bookings
@@ -103,6 +106,9 @@ export default function Navbar() {
             </NavLink>
             <NavLink to="/search" className={pill}>
               Search
+            </NavLink>
+            <NavLink to="/help" className={pill}>
+              Help
             </NavLink>
             {user && (
               <NavLink to="/my-bookings" className={pill}>
