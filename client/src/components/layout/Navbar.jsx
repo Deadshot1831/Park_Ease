@@ -42,9 +42,6 @@ export default function Navbar() {
           <NavLink to="/guard" className={pill}>
             Monitor
           </NavLink>
-          <NavLink to="/showcase" className={pill}>
-            Showcase
-          </NavLink>
           <NavLink to="/help" className={pill}>
             Help
           </NavLink>

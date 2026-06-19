@@ -144,7 +144,7 @@ export default function ScrollHero() {
             variants={fade}
             initial="hidden"
             animate="show"
-            href="#specs"
+            href="#parking"
             className="lux-btn"
             style={{ marginTop: '2rem', pointerEvents: 'auto', alignSelf: 'flex-start' }}
           >

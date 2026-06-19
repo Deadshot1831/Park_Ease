@@ -23,7 +23,6 @@ const MyListings = lazy(() => import('./pages/owner/MyListings'))
 const AddSpot = lazy(() => import('./pages/owner/AddSpot'))
 const IncomingBookings = lazy(() => import('./pages/owner/IncomingBookings'))
 const Guard = lazy(() => import('./pages/Guard'))
-const Showcase = lazy(() => import('./pages/showcase/Showcase'))
 
 function App() {
   const loadUser = useAuthStore((s) => s.loadUser)
@@ -37,7 +36,6 @@ function App() {
       <Routes>
         {/* Standalone full-screen monitoring dashboard (own top bar) */}
         <Route path="/guard" element={<Guard />} />
-        <Route path="/showcase" element={<Showcase />} />
 
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
