@@ -30,6 +30,9 @@ export default function ScrollHero() {
     const container = containerRef.current;
     if (!canvas || !container) return;
     const ctx = canvas.getContext('2d');
+    // Cap pixel ratio — full-frame redraws on a 2x/3x display are far heavier
+    // than the visual gain is worth for a photographic scrub.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
     const images = [];
     let currentIdx = -1;
@@ -39,7 +42,6 @@ export default function ScrollHero() {
     const draw = (idx) => {
       const img = images[idx];
       if (!img || !img.complete || img.naturalWidth === 0) return;
-      const dpr = window.devicePixelRatio || 1;
       const cw = canvas.width / dpr;
       const ch = canvas.height / dpr;
       ctx.fillStyle = '#000';
@@ -54,7 +56,6 @@ export default function ScrollHero() {
     };
 
     const sizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1;
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
@@ -94,12 +95,23 @@ export default function ScrollHero() {
   }, [frameCount]);
 
   // Scale the scrollable length to the video length so every frame gets enough
-  // scroll distance (≈2vh/frame), keeping the scrub smooth and cinematic.
-  const heroHeight = Math.max(300, Math.round(100 + frameCount * 2));
+  // scroll distance (~1.4vh/frame), keeping the scrub smooth without dragging on.
+  const heroHeight = Math.max(280, Math.round(100 + frameCount * 1.4));
 
   return (
     <div ref={containerRef} style={{ height: `${heroHeight}vh`, position: 'relative' }}>
-      <div style={{ position: 'sticky', top: 0, width: '100vw', height: '100vh', overflow: 'hidden', background: '#000' }}>
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          width: '100vw',
+          height: '100vh',
+          overflow: 'hidden',
+          background: '#000',
+          transform: 'translateZ(0)', // own compositor layer for smooth scroll
+          willChange: 'transform',
+        }}
+      >
         <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
 
         {/* Gradient + overlay content */}

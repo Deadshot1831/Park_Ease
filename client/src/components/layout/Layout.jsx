@@ -12,6 +12,7 @@ export default function Layout() {
           backgroundImage:
             'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
           backgroundSize: '56px 56px',
+          transform: 'translateZ(0)',
         }}
       />
       <Navbar />

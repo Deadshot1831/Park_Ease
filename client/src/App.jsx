@@ -33,6 +33,8 @@ function App() {
 
   return (
     <Suspense fallback={<Loader label="Loading ParkEase…" className="min-h-screen" />}>
+      {/* GPU-composited ambient background (no scroll repaint) */}
+      <div className="app-bg" aria-hidden="true" />
       <Routes>
         {/* Standalone full-screen monitoring dashboard (own top bar) */}
         <Route path="/guard" element={<Guard />} />

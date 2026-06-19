@@ -10,13 +10,22 @@
   body {
     @apply bg-ink-950 text-slate-200 antialiased;
     margin: 0;
-    /* Ambient violet/fuchsia glows on a near-black canvas */
     background-color: #06060b;
+  }
+
+  /* Ambient violet/fuchsia glow on its OWN compositor layer so it never repaints
+     on scroll (background-attachment: fixed was causing site-wide scroll jank). */
+  .app-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
     background-image:
       radial-gradient(60rem 40rem at 12% -10%, rgba(124, 58, 237, 0.18), transparent 60%),
       radial-gradient(50rem 40rem at 105% 8%, rgba(217, 70, 239, 0.14), transparent 55%),
       radial-gradient(40rem 40rem at 50% 120%, rgba(99, 102, 241, 0.1), transparent 60%);
-    background-attachment: fixed;
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   ::selection {
