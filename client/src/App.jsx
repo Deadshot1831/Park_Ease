@@ -4,6 +4,7 @@ import { useAuthStore } from './store/authStore'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Loader from './components/common/Loader'
+import ChatWidget from './components/chat/ChatWidget'
 
 // Route-level code splitting (Phase 6: performance)
 const Home = lazy(() => import('./pages/Home'))
@@ -109,6 +110,9 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+
+      {/* Floating support chatbot, available on every page */}
+      <ChatWidget />
     </Suspense>
   )
 }
