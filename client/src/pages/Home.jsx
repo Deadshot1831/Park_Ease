@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { FaSearch, FaListUl, FaMapMarkedAlt } from 'react-icons/fa';
 import MapView from '../components/map/MapView';
 import SpotCard from '../components/spots/SpotCard';
+import AmenityFilterBar from '../components/spots/AmenityFilterBar';
 import Loader from '../components/common/Loader';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useAvailabilitySocket } from '../hooks/useSocket';
@@ -23,18 +24,23 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('map'); // 'map' | 'list'
   const [query, setQuery] = useState('');
+  const [amenities, setAmenities] = useState([]);
 
   const fetchSpots = useCallback(async () => {
     setLoading(true);
     try {
-      const { spots } = await getNearbySpots(position.lat, position.lng, 10000);
+      const extra = amenities.length ? { amenities: amenities.join(',') } : {};
+      const { spots } = await getNearbySpots(position.lat, position.lng, 10000, extra);
       setSpots(spots);
     } catch (err) {
       toast.error(err.message);
     } finally {
       setLoading(false);
     }
-  }, [position]);
+  }, [position, amenities]);
+
+  const toggleAmenity = (key) =>
+    setAmenities((a) => (a.includes(key) ? a.filter((x) => x !== key) : [...a, key]));
 
   useEffect(() => {
     if (!geoLoading) fetchSpots();
@@ -82,6 +88,9 @@ export default function Home() {
             <button type="submit" className="btn-primary">Search</button>
           </form>
         </div>
+
+        {/* Headline amenity quick-filters */}
+        <AmenityFilterBar selected={amenities} onToggle={toggleAmenity} className="mt-5" />
 
         <div className="mt-5 flex items-center justify-between">
           <div className="pill-group">

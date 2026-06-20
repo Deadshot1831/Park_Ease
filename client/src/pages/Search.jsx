@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { FaSearch, FaFilter } from 'react-icons/fa';
 import SpotCard from '../components/spots/SpotCard';
 import FilterPanel from '../components/spots/FilterPanel';
+import AmenityFilterBar from '../components/spots/AmenityFilterBar';
 import Loader from '../components/common/Loader';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { searchSpots } from '../services/spotService';
@@ -47,6 +48,14 @@ export default function Search() {
     runSearch();
   };
 
+  const selectedAmenities = filters.amenities ? filters.amenities.split(',').filter(Boolean) : [];
+  const toggleAmenity = (key) => {
+    const next = selectedAmenities.includes(key)
+      ? selectedAmenities.filter((x) => x !== key)
+      : [...selectedAmenities, key];
+    setFilters({ ...filters, amenities: next.join(',') });
+  };
+
   return (
     <div className="mx-auto w-full max-w-7xl flex-1 px-3 py-6 sm:px-4">
       <form onSubmit={submit} className="mb-6 flex gap-2">
@@ -64,6 +73,9 @@ export default function Search() {
           <FaFilter />
         </button>
       </form>
+
+      {/* Headline amenity quick-filters */}
+      <AmenityFilterBar selected={selectedAmenities} onToggle={toggleAmenity} className="mb-6" />
 
       <div className="flex gap-6">
         <aside className={`${showFilters ? 'block' : 'hidden'} w-full shrink-0 lg:block lg:w-64`}>
