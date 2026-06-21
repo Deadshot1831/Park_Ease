@@ -1,0 +1,189 @@
+==========================================================================
+ ParkEase — Google Maps API Setup & Cost-Safety Guide
+==========================================================================
+
+This guide explains how to:
+  1. Get a Google Maps API key
+  2. Add it to ParkEase
+  3. Lock it down so you NEVER get a surprise bill
+
+The map (Find Parking page) uses ONE Google API: "Maps JavaScript API".
+Everything else in ParkEase works without it.
+
+If you would rather not add a credit card at all, see SECTION 9 — a 100%
+free, no-card alternative (Leaflet + OpenStreetMap).
+
+
+--------------------------------------------------------------------------
+ SECTION 1 — DO I HAVE TO PAY? (read this first)
+--------------------------------------------------------------------------
+- Google REQUIRES a billing account (a credit/debit card) to turn on any
+  Maps API. There is no way around the card with Google.
+- It does NOT auto-charge you. You are only billed if you go OVER the free
+  monthly allowance.
+- Google Maps gives a generous free allowance every month (historically a
+  $200 credit; Google now also provides per-API free tiers of roughly
+  ~10,000 map loads/month for the Maps JavaScript API).
+- A development project, demo, or portfolio site uses a tiny fraction of
+  that, so in practice your cost stays $0/month.
+- With the safety caps in SECTION 6, it is impossible to be charged because
+  the map simply stops loading once you hit your self-set limit.
+
+
+--------------------------------------------------------------------------
+ SECTION 2 — CREATE A PROJECT
+--------------------------------------------------------------------------
+1. Go to: https://console.cloud.google.com/
+2. Sign in with your Google account.
+3. Top bar -> project dropdown -> "New Project".
+4. Name it (e.g. "ParkEase") -> Create -> make sure it's selected.
+
+
+--------------------------------------------------------------------------
+ SECTION 3 — ENABLE BILLING (required, but you won't be charged)
+--------------------------------------------------------------------------
+1. Left menu -> "Billing".
+2. "Link a billing account" -> add your card.
+3. This unlocks the free tier. (See SECTION 6 to guarantee $0.)
+
+
+--------------------------------------------------------------------------
+ SECTION 4 — ENABLE THE MAPS API
+--------------------------------------------------------------------------
+1. Left menu -> "APIs & Services" -> "Library".
+2. Search "Maps JavaScript API" -> click it -> "Enable".
+
+OPTIONAL (only if you later add address autocomplete — NOT needed today):
+   - "Places API"
+   - "Geocoding API"
+
+
+--------------------------------------------------------------------------
+ SECTION 5 — CREATE THE API KEY
+--------------------------------------------------------------------------
+1. "APIs & Services" -> "Credentials".
+2. "Create credentials" -> "API key".
+3. Copy the key (looks like: AIzaSy....................).
+4. Click "Edit API key" and apply the restrictions in SECTION 6 & 7.
+
+
+--------------------------------------------------------------------------
+ SECTION 6 — STAY SAFE: CAP USAGE SO YOU CANNOT BE BILLED
+--------------------------------------------------------------------------
+Do BOTH of these. This is the important part.
+
+A) HARD CAP THE API (recommended — guarantees no charge):
+   1. "APIs & Services" -> "Maps JavaScript API" -> "Quotas & System Limits"
+      (or "Quotas").
+   2. Find "Map loads per day" (or similar daily quota).
+   3. Click the edit (pencil) -> set a low daily limit, e.g. 1000.
+   4. Save.
+   -> Once you hit that number in a day, the map just stops loading.
+      Google does NOT charge you beyond the quota — it blocks instead.
+
+B) BUDGET ALERT (early warning email):
+   1. "Billing" -> "Budgets & alerts" -> "Create budget".
+   2. Set amount to a tiny value (e.g. 1 unit of your currency).
+   3. Set alert thresholds at 50% / 90% / 100%.
+   4. Save. You'll get an email long before any real spend.
+
+Tip: for a dev project, 1000 map loads/day is far more than you'll use,
+yet still safely inside the free tier.
+
+
+--------------------------------------------------------------------------
+ SECTION 7 — RESTRICT THE KEY (stops others from using it)
+--------------------------------------------------------------------------
+On the API key's edit page:
+
+A) Application restrictions -> "HTTP referrers (web sites)" -> add:
+      http://localhost:5173/*
+      http://localhost:5174/*        (in case Vite picks another port)
+   Later, add your live domain too, e.g.:
+      https://your-domain.com/*
+
+B) API restrictions -> "Restrict key" -> tick:
+      Maps JavaScript API
+   (plus Places/Geocoding only if you enabled them).
+
+C) Save.
+
+This means even if someone copies your key from the browser, it won't work
+on any site except yours — so they can't run up your bill.
+
+
+--------------------------------------------------------------------------
+ SECTION 8 — ADD THE KEY TO PARKEASE
+--------------------------------------------------------------------------
+1. Open the file:  client/.env
+   (It already exists. It is git-ignored, so the key is NOT committed.)
+
+2. Add this line (keep the existing lines):
+
+      VITE_API_URL=http://localhost:5050/api
+      VITE_SOCKET_URL=http://localhost:5050
+      VITE_GOOGLE_MAPS_API_KEY=AIzaSy....your_key_here
+
+3. Restart the dev server (Vite only reads .env on startup):
+
+      cd client
+      npm run dev
+
+4. Open http://localhost:5173 -> the Find Parking map now renders
+   (dark theme + color-coded availability pins) instead of the list view.
+   If you still see the list, hard-refresh: Cmd+Shift+R (Mac) / Ctrl+F5.
+
+No code changes are needed — client/src/components/map/MapView.jsx reads
+VITE_GOOGLE_MAPS_API_KEY and switches to the live map automatically.
+
+
+--------------------------------------------------------------------------
+ SECTION 9 — FREE, NO-CARD ALTERNATIVE (optional)
+--------------------------------------------------------------------------
+Don't want to add a card at all? Two options:
+
+1. Do nothing — ParkEase already shows a styled LIST view of nearby spots
+   when no key is set. Fully functional, just no map.
+
+2. Switch to Leaflet + OpenStreetMap:
+   - 100% free, NO card, NO key, NO billing account.
+   - Gives a real interactive dark map with the same availability pins.
+   - Ask the developer/assistant to "switch the map to Leaflet/OpenStreetMap"
+     — it's a focused change to the MapView component only.
+
+
+--------------------------------------------------------------------------
+ SECTION 10 — TROUBLESHOOTING
+--------------------------------------------------------------------------
+- "This page can't load Google Maps correctly" / grey watermarked map:
+    -> Billing not enabled (SECTION 3), or
+    -> Maps JavaScript API not enabled (SECTION 4).
+
+- Map is blank / console shows "RefererNotAllowedMapError":
+    -> Your HTTP referrer in SECTION 7 doesn't match. Make sure
+       http://localhost:5173/* is listed exactly.
+
+- "ApiNotActivatedMapError":
+    -> Enable "Maps JavaScript API" (SECTION 4).
+
+- Still seeing the list, not the map:
+    -> .env not picked up. Confirm the line is in client/.env, then fully
+       stop and restart `npm run dev`, and hard-refresh the browser.
+
+- Worried about cost:
+    -> Re-check SECTION 6. With a daily quota cap you cannot be charged.
+
+
+--------------------------------------------------------------------------
+ QUICK CHECKLIST
+--------------------------------------------------------------------------
+[ ] Created Google Cloud project
+[ ] Enabled billing (card added)
+[ ] Enabled "Maps JavaScript API"
+[ ] Created API key
+[ ] Set a daily quota cap (SECTION 6A)
+[ ] Set a budget alert (SECTION 6B)
+[ ] Restricted key to localhost referrer + Maps JavaScript API (SECTION 7)
+[ ] Added VITE_GOOGLE_MAPS_API_KEY to client/.env
+[ ] Restarted `npm run dev` and hard-refreshed
+==========================================================================
