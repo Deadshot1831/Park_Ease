@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { FaCheckCircle } from 'react-icons/fa';
 import Loader from '../components/common/Loader';
 import { getSpot } from '../services/spotService';
-import { createBooking, createOrder, verifyPayment } from '../services/bookingService';
+import { createBooking, createOrder, verifyPayment, downloadInvoice } from '../services/bookingService';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency } from '../utils/helpers';
 
@@ -148,7 +148,15 @@ export default function Booking() {
           {confirmed.qrCode && (
             <img src={confirmed.qrCode} alt="Booking QR code" className="relative mx-auto mt-4 h-44 w-44 rounded-xl bg-white p-2" />
           )}
-          <p className="relative mt-2 text-sm text-slate-400">Show this QR code at the entrance.</p>
+          <p className="relative mt-2 text-sm text-slate-400">
+            Show this QR code at the entrance. A receipt has been emailed to you.
+          </p>
+          <button
+            onClick={() => downloadInvoice(confirmed._id).catch((e) => toast.error(e.message))}
+            className="btn-secondary relative mt-4"
+          >
+            Download receipt (PDF)
+          </button>
           <div className="relative mt-6 flex gap-2">
             <button onClick={() => navigate('/my-bookings')} className="btn-primary flex-1">
               My Bookings

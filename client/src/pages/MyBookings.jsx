@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Loader from '../components/common/Loader';
-import { getMyBookings, cancelBooking } from '../services/bookingService';
+import { getMyBookings, cancelBooking, downloadInvoice } from '../services/bookingService';
 import { formatCurrency } from '../utils/helpers';
 
 const STATUS_STYLES = {
@@ -45,6 +45,14 @@ export default function MyBookings() {
       load();
     } catch (err) {
       toast.error(err.message);
+    }
+  };
+
+  const handleInvoice = async (id) => {
+    try {
+      await downloadInvoice(id);
+    } catch (err) {
+      toast.error(err.message || 'Could not download receipt');
     }
   };
 
@@ -96,6 +104,11 @@ export default function MyBookings() {
                   <Link to="/guard" className="btn-secondary text-xs">
                     Monitor
                   </Link>
+                )}
+                {['confirmed', 'active', 'completed'].includes(b.status) && (
+                  <button onClick={() => handleInvoice(b._id)} className="btn-secondary text-xs">
+                    Receipt
+                  </button>
                 )}
                 {b.qrCode && (
                   <button onClick={() => setQr(b.qrCode)} className="btn-secondary text-xs">

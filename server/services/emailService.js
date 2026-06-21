@@ -20,10 +20,11 @@ const getTransporter = () => {
 };
 
 // Generic send helper — no-ops (with a log) when SMTP isn't configured
-const sendEmail = async ({ to, subject, html, text }) => {
+const sendEmail = async ({ to, subject, html, text, attachments }) => {
   const t = getTransporter();
   if (!t) {
-    console.log(`✉️  [email skipped — SMTP not configured] to=${to} subject="${subject}"`);
+    const att = attachments?.length ? ` (+${attachments.length} attachment)` : '';
+    console.log(`✉️  [email skipped — SMTP not configured] to=${to} subject="${subject}"${att}`);
     return { skipped: true };
   }
   return t.sendMail({
@@ -32,10 +33,11 @@ const sendEmail = async ({ to, subject, html, text }) => {
     subject,
     text,
     html,
+    attachments,
   });
 };
 
-const sendBookingConfirmation = async (user, booking, spot) => {
+const sendBookingConfirmation = async (user, booking, spot, attachments) => {
   const html = `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
       <h2 style="color:#7c3aed;">🅿️ Booking Confirmed!</h2>
@@ -47,10 +49,10 @@ const sendBookingConfirmation = async (user, booking, spot) => {
         <li><strong>Vehicle:</strong> ${booking.vehicle.number}</li>
         <li><strong>Amount:</strong> ₹${booking.amount}</li>
       </ul>
-      <p>Show the QR code in your booking history at the entrance.</p>
+      <p>Your receipt is attached as a PDF. Show the QR code in your booking history at the entrance.</p>
       <p>— Team ParkEase</p>
     </div>`;
-  return sendEmail({ to: user.email, subject: 'Your ParkEase booking is confirmed', html });
+  return sendEmail({ to: user.email, subject: 'Your ParkEase booking is confirmed', html, attachments });
 };
 
 const sendPasswordReset = async (user, resetUrl) => {

@@ -22,6 +22,7 @@ router.post(
 router.get('/my', protect, ctrl.getMyBookings);
 router.get('/incoming', protect, authorize('owner', 'admin'), ctrl.getIncomingBookings);
 router.get('/:id', protect, ctrl.getBooking);
+router.get('/:id/invoice', protect, ctrl.getInvoice);
 router.put('/:id/cancel', protect, ctrl.cancelBooking);
 router.put('/:id/status', protect, authorize('owner', 'admin'), ctrl.updateBookingStatus);
 

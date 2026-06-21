@@ -10,6 +10,21 @@ export const getIncomingBookings = (status) =>
 
 export const getBooking = (id) => api.get(`/bookings/${id}`).then((r) => r.data);
 
+// Downloads the PDF receipt and triggers a browser save
+export const downloadInvoice = async (id) => {
+  const blob = await api
+    .get(`/bookings/${id}/invoice`, { responseType: 'blob' })
+    .then((r) => r.data);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ParkEase-Receipt-${String(id).slice(-8)}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
+
 export const cancelBooking = (id, reason) =>
   api.put(`/bookings/${id}/cancel`, { reason }).then((r) => r.data);
 

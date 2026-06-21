@@ -7,6 +7,7 @@ const { generateBookingQR } = require('../utils/generateQR');
 const { emitAvailabilityUpdate, emitToUser } = require('../services/socketService');
 const { sendBookingConfirmation } = require('../services/emailService');
 const { refundPayment } = require('../services/paymentService');
+const { buildInvoicePdf } = require('../services/invoiceService');
 
 // Compute price from spot pricing and duration in hours
 const computeAmount = (spot, hours) => {
@@ -76,7 +77,24 @@ const confirmBooking = async (bookingId) => {
     emitAvailabilityUpdate(spot._id, spot.availableSpots, spot.totalSpots);
   }
   emitToUser(booking.user._id, 'booking', { bookingId: booking._id, status: 'confirmed' });
-  sendBookingConfirmation(booking.user, booking, booking.parkingSpot).catch(() => {});
+
+  // Generate the PDF receipt and email it with the confirmation (best-effort)
+  (async () => {
+    try {
+      const payment = booking.payment ? await Payment.findById(booking.payment) : null;
+      const pdf = await buildInvoicePdf({
+        booking,
+        user: booking.user,
+        spot: booking.parkingSpot,
+        payment,
+      });
+      await sendBookingConfirmation(booking.user, booking, booking.parkingSpot, [
+        { filename: `ParkEase-Receipt-${String(booking._id).slice(-8)}.pdf`, content: pdf },
+      ]);
+    } catch (err) {
+      console.error('Invoice/email failed:', err.message);
+    }
+  })();
 
   return booking;
 };
@@ -121,6 +139,41 @@ const getBooking = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to view this booking');
   }
   res.json({ success: true, booking });
+});
+
+// @route   GET /api/bookings/:id/invoice  → streams a PDF receipt
+const getInvoice = asyncHandler(async (req, res) => {
+  const booking = await Booking.findById(req.params.id)
+    .populate('parkingSpot')
+    .populate('user', 'name email phone')
+    .populate('payment');
+
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+  if (String(booking.user._id) !== String(req.user._id) && req.user.role !== 'admin') {
+    res.status(403);
+    throw new Error('Not authorized to view this invoice');
+  }
+  if (!['confirmed', 'active', 'completed'].includes(booking.status)) {
+    res.status(400);
+    throw new Error('A receipt is available once the booking is paid');
+  }
+
+  const pdf = await buildInvoicePdf({
+    booking,
+    user: booking.user,
+    spot: booking.parkingSpot,
+    payment: booking.payment,
+  });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="ParkEase-Receipt-${String(booking._id).slice(-8)}.pdf"`
+  );
+  res.send(pdf);
 });
 
 // @route   PUT /api/bookings/:id/cancel
@@ -211,6 +264,7 @@ module.exports = {
   getMyBookings,
   getIncomingBookings,
   getBooking,
+  getInvoice,
   cancelBooking,
   updateBookingStatus,
 };
