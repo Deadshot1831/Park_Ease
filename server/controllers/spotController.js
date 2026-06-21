@@ -103,9 +103,24 @@ const getSpot = asyncHandler(async (req, res) => {
   res.json({ success: true, spot });
 });
 
+// Only these fields may be set by an owner — prevents mass assignment of
+// owner, isApproved, averageRating, totalReviews, etc.
+const OWNER_EDITABLE = [
+  'name', 'description', 'address', 'location', 'type', 'parkingType',
+  'totalSpots', 'availableSpots', 'pricing', 'amenities', 'operatingHours',
+  'images', 'isActive',
+];
+const pickEditable = (body) => {
+  const out = {};
+  for (const key of OWNER_EDITABLE) {
+    if (body[key] !== undefined) out[key] = body[key];
+  }
+  return out;
+};
+
 // @route   POST /api/spots  (owner)
 const createSpot = asyncHandler(async (req, res) => {
-  const data = { ...req.body, owner: req.user._id };
+  const data = { ...pickEditable(req.body), owner: req.user._id };
   if (data.availableSpots === undefined) data.availableSpots = data.totalSpots;
   const spot = await ParkingSpot.create(data);
   res.status(201).json({ success: true, spot });
@@ -140,7 +155,7 @@ const updateSpot = asyncHandler(async (req, res) => {
     throw e;
   }
 
-  Object.assign(spot, req.body);
+  Object.assign(spot, pickEditable(req.body));
   await spot.save();
   res.json({ success: true, spot });
 });

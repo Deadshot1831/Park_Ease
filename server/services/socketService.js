@@ -6,7 +6,7 @@ const initSocket = (server, clientUrl) => {
   const { Server } = require('socket.io');
   io = new Server(server, {
     cors: {
-      origin: clientUrl || '*',
+      origin: clientUrl || 'http://localhost:5173',
       methods: ['GET', 'POST'],
     },
   });

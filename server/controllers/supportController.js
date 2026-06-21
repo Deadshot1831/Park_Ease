@@ -1,6 +1,7 @@
 const SupportTicket = require('../models/SupportTicket');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { sendEmail } = require('../services/emailService');
+const { escapeHtml } = require('../utils/escapeHtml');
 
 const SUBJECT_LABELS = {
   booking: 'Booking issue',
@@ -35,10 +36,10 @@ const createTicket = asyncHandler(async (req, res) => {
       subject: `[ParkEase Support] ${label} — ${name}`,
       html: `
         <h3>New support request</h3>
-        <p><strong>From:</strong> ${name} (${email})${phone ? ` · ${phone}` : ''}</p>
+        <p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})${phone ? ` · ${escapeHtml(phone)}` : ''}</p>
         <p><strong>Topic:</strong> ${label}</p>
         <p><strong>Message:</strong></p>
-        <p>${String(message).replace(/\n/g, '<br>')}</p>
+        <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
         <p style="color:#888">Ticket ${ticket._id}</p>`,
     }).catch(() => {});
   }
@@ -49,7 +50,7 @@ const createTicket = asyncHandler(async (req, res) => {
     subject: 'We’ve received your message — ParkEase Support',
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
-        <h2 style="color:#7c3aed;">Thanks, ${name}!</h2>
+        <h2 style="color:#7c3aed;">Thanks, ${escapeHtml(name)}!</h2>
         <p>Our team has received your message about <strong>${label}</strong> and will get back to you shortly.</p>
         <p>Need urgent help? Call our 24/7 helpline at <strong>+91 1800 123 4567</strong>.</p>
         <p>— Team ParkEase</p>

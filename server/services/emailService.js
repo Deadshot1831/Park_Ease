@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { escapeHtml } = require('../utils/escapeHtml');
 
 let transporter = null;
 
@@ -41,13 +42,13 @@ const sendBookingConfirmation = async (user, booking, spot, attachments) => {
   const html = `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
       <h2 style="color:#7c3aed;">🅿️ Booking Confirmed!</h2>
-      <p>Hi ${user.name},</p>
-      <p>Your parking spot at <strong>${spot.name}</strong> is booked.</p>
+      <p>Hi ${escapeHtml(user.name)},</p>
+      <p>Your parking spot at <strong>${escapeHtml(spot.name)}</strong> is booked.</p>
       <ul>
         <li><strong>From:</strong> ${new Date(booking.startTime).toLocaleString()}</li>
         <li><strong>To:</strong> ${new Date(booking.endTime).toLocaleString()}</li>
-        <li><strong>Vehicle:</strong> ${booking.vehicle.number}</li>
-        <li><strong>Amount:</strong> ₹${booking.amount}</li>
+        <li><strong>Vehicle:</strong> ${escapeHtml(booking.vehicle.number)}</li>
+        <li><strong>Amount:</strong> ₹${Number(booking.amount) || 0}</li>
       </ul>
       <p>Your receipt is attached as a PDF. Show the QR code in your booking history at the entrance.</p>
       <p>— Team ParkEase</p>
@@ -59,7 +60,7 @@ const sendPasswordReset = async (user, resetUrl) => {
   const html = `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
       <h2 style="color:#7c3aed;">Reset your password</h2>
-      <p>Hi ${user.name}, click the link below to reset your password. It expires in 30 minutes.</p>
+      <p>Hi ${escapeHtml(user.name)}, click the link below to reset your password. It expires in 30 minutes.</p>
       <p><a href="${resetUrl}" style="color:#7c3aed;">${resetUrl}</a></p>
       <p>If you didn't request this, ignore this email.</p>
     </div>`;
