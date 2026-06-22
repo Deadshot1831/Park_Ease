@@ -26,3 +26,7 @@ npm-debug.log*
 
 # Coverage
 coverage/
+
+# Presentation build artifacts
+deck-build/shots/
+deck-build/package-lock.json
