@@ -27,6 +27,23 @@ const STYLE = `
 
 const bar = `<img src="${path.join(ASSETS, 'gradbar.png')}" style="width:90pt;height:5pt;margin-top:10pt" />`;
 
+// Presenter-facing speaker notes per slide
+const NOTES = {
+  title: "Open with energy. ParkEase is a smart-parking platform that lets drivers find and reserve a guaranteed spot before they arrive. Frame it as solving a daily, universal pain in Indian cities — then move quickly into the problem.",
+  problem: "Set the scene: vehicle ownership is booming but parking information hasn't kept up. Drivers waste 15–20 minutes per trip and often park illegally out of desperation. Land the emotional hook before showing the hard numbers.",
+  numbers: "Hit the headline stats hard, pausing after each. 8 crore+ traffic challans a year nationally; Noida alone issued ~2.7 lakh illegal-parking challans in a single year; Delhi issues ~65,000 a month — roughly 7.8 lakh a year. Note: cite official/press sources (see the appendix) before presenting.",
+  cost: "Reframe the cost. It isn't just the fine — parking search drives an estimated ~30% of urban congestion, wastes fuel and raises emissions. Make it a societal problem, not just an individual inconvenience.",
+  solution: "Introduce ParkEase as the fix: one live map aggregating commercial lots, street and private spaces. Two sides of the marketplace — drivers reserve and pay ahead; owners monetise space they already own. Emphasise it's asset-light.",
+  how: "Walk the simple four-step flow and stress it takes under a minute with a guaranteed spot. Real-time availability over WebSockets means what the driver sees is actually free right now.",
+  features: "Stress that this is a working, full-stack platform — not a mockup. Call out the differentiators: real payments via Razorpay, live monitoring with Park.Guard, verified (booking-gated) reviews, and the built-in AI assistant.",
+  impact: "Quantify the upside. ~17 minutes saved per trip; at 1M users and two trips a day that's roughly 570,000 driver-hours saved every day. Fewer cars circling means fewer illegal-parking fines and less congestion. Flag the chart as an illustrative model.",
+  market: "Size the prize: 350M+ registered vehicles, 500M+ urban residents, and rising smartphone/UPI adoption. Even a small share is a large business. Flag the growth curve as illustrative — swap in a sourced market report for fundraising.",
+  model: "Explain the economics: commission per booking is the core revenue, plus owner subscriptions and featured listings, a share of dynamic/surge pricing, and partnerships (EV, insurance). Multiple streams, asset-light.",
+  why: "Summarise the edge — aggregation + real-time + secure payments + monitoring + AI in a single product — then paint the roadmap: AI availability prediction, dynamic pricing, EV/IoT integration, native mobile apps and city partnerships.",
+  closing: "End on the vision and a clear ask. 'Park with certainty, arrive with ease.' State exactly what you're seeking — a pilot, a partnership, mentorship, or funding — and invite questions.",
+  sources: "Backup/appendix slide. Use it to answer 'where did these numbers come from?'. Replace each placeholder with the exact primary citation (with year and link) before you present.",
+};
+
 function page(inner, n) {
   const pageNo = n ? `<p style="position:absolute"></p>` : '';
   return `<!DOCTYPE html><html><head><style>${STYLE}</style></head><body><div class="root">${inner}${pageNo}</div></body></html>`;
@@ -247,6 +264,29 @@ slides.push({ name: 'closing', html: page(`
   </div>
 `) });
 
+// 13. SOURCES / APPENDIX
+function srcRow(claim, src) {
+  return `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #211f30;padding:7pt 0">
+    <p style="color:#d3d4de;font-size:10.5pt;width:330pt">${claim}</p>
+    <p style="color:#8b8fa6;font-size:10pt;width:280pt;text-align:right">${src}</p>
+  </div>`;
+}
+slides.push({ name: 'sources', html: page(`
+  <p class="kicker">APPENDIX</p>
+  <h2 class="h">Sources &amp; notes.</h2>
+  ${bar}
+  <div style="margin-top:14pt">
+    ${srcRow('8 Cr+ traffic challans / year (India)', 'NCRB / MoRTH / national press reports')}
+    ${srcRow('2.7 lakh illegal-parking challans, Noida (1 year)', 'Noida Traffic Police / press reports')}
+    ${srcRow('~65,000 illegal-parking challans / month, Delhi', 'Delhi Traffic Police / press reports')}
+    ${srcRow('350M+ registered vehicles in India', 'MoRTH &ldquo;Vahan&rdquo; / Road Transport Yearbook')}
+    ${srcRow('15&ndash;20 min wasted searching for parking', 'INRIX parking study / industry research')}
+    ${srcRow('~30% of urban congestion from parking search', 'INRIX / academic research (e.g. D. Shoup)')}
+    ${srcRow('Market size &amp; revenue mix', 'Illustrative &mdash; replace with a market report')}
+  </div>
+  <p class="foot">Figures are reported or illustrative and included for discussion. Confirm exact numbers and add primary citations (with year &amp; link) before any public or investor use.</p>
+`) });
+
 // ---------- generate assets ----------
 async function makeAssets() {
   fs.mkdirSync(ASSETS, { recursive: true });
@@ -273,6 +313,7 @@ async function build() {
     const file = path.join(SLIDES, `${s.name}.html`);
     fs.writeFileSync(file, s.html);
     const { slide, placeholders } = await html2pptx(file, pptx);
+    if (NOTES[s.name]) slide.addNotes(NOTES[s.name]);
 
     if (s.name === 'impact' && placeholders[0]) {
       slide.addChart(pptx.charts.BAR, [{
