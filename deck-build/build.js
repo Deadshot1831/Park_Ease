@@ -40,6 +40,7 @@ const NOTES = {
   market: "Size the prize: 350M+ registered vehicles, 500M+ urban residents, and rising smartphone/UPI adoption. Even a small share is a large business. Flag the growth curve as illustrative — swap in a sourced market report for fundraising.",
   model: "Explain the economics: commission per booking is the core revenue, plus owner subscriptions and featured listings, a share of dynamic/surge pricing, and partnerships (EV, insurance). Multiple streams, asset-light.",
   why: "Summarise the edge — aggregation + real-time + secure payments + monitoring + AI in a single product — then paint the roadmap: AI availability prediction, dynamic pricing, EV/IoT integration, native mobile apps and city partnerships.",
+  compare: "This is the 'why us' proof. Maps/search apps show some parking but can't guarantee or book a spot. Existing parking apps book commercial lots but rarely cover street + private spaces, owner tools, in-booking monitoring or an AI assistant. ParkEase does all of it in one platform — walk down the ParkEase column of green checks.",
   closing: "End on the vision and a clear ask. 'Park with certainty, arrive with ease.' State exactly what you're seeking — a pilot, a partnership, mentorship, or funding — and invite questions.",
   sources: "Backup/appendix slide. Use it to answer 'where did these numbers come from?'. Replace each placeholder with the exact primary citation (with year and link) before you present.",
 };
@@ -252,6 +253,15 @@ slides.push({ name: 'why', html: page(`
   </div>
 `) });
 
+// 11b. HOW WE COMPARE
+slides.push({ name: 'compare', html: page(`
+  <p class="kicker">HOW WE COMPARE</p>
+  <h2 class="h">Better than what&rsquo;s out there today.</h2>
+  ${bar}
+  <div id="compare" class="placeholder" style="width:640pt;height:248pt;background:#0a0a12;margin-top:12pt"></div>
+  <p class="foot">Compared by capability category (typical maps/search apps and existing parking apps) &mdash; not a claim about any specific named product.</p>
+`) });
+
 // 12. CLOSING
 slides.push({ name: 'closing', html: page(`
   <div style="display:flex;flex-direction:column;justify-content:center;height:345pt">
@@ -342,6 +352,39 @@ async function build() {
         catAxisLabelColor: 'aab0c2', valAxisLabelColor: 'aab0c2', catAxisLabelFontSize: 9, valAxisLabelFontSize: 8,
         valAxisMinVal: 0, valAxisMaxVal: 300, valAxisMajorUnit: 100,
         chartColors: ['d946ef'], lineDataSymbol: 'circle', lineDataSymbolSize: 5,
+      });
+    }
+    if (s.name === 'compare' && placeholders[0]) {
+      const ph = placeholders[0];
+      const mark = (sym) => ({
+        text: sym,
+        options: { align: 'center', bold: true, color: sym === '✓' ? '34d399' : sym === '✗' ? 'fb7185' : 'fbbf24' },
+      });
+      const pe = (sym) => ({ text: sym, options: { align: 'center', bold: true, color: '34d399', fill: { color: '20143a' } } });
+      const cap = (t) => ({ text: t, options: { align: 'left', color: 'e8e8f0' } });
+      const hCell = (t, fill, al) => ({ text: t, options: { fill: { color: fill }, color: 'FFFFFF', bold: true, align: al || 'center' } });
+
+      const rows = [
+        ['Live, real-time availability', '~', '✓'],
+        ['Guaranteed reservation (spot held)', '✗', '✓'],
+        ['Book & pay in advance (UPI / cards)', '✗', '✓'],
+        ['Lots + street + private spaces', '~', '~'],
+        ['Owner self-listing & revenue tools', '✗', '~'],
+        ['In-booking security monitoring', '✗', '✗'],
+        ['Verified, booking-gated reviews', '~', '✗'],
+        ['AI assistant + EV / amenity filters', '~', '✗'],
+      ];
+      const tableData = [
+        [hCell('Capability', '241f33', 'left'), hCell('Maps / search apps', '241f33'), hCell('Existing parking apps', '241f33'), hCell('ParkEase', 'a855f7')],
+        ...rows.map(([c, m1, m2]) => [cap(c), mark(m1), mark(m2), pe('✓')]),
+      ];
+      slide.addTable(tableData, {
+        x: ph.x, y: ph.y, w: ph.w, h: ph.h,
+        colW: [ph.w * 0.37, ph.w * 0.225, ph.w * 0.225, ph.w * 0.18],
+        rowH: [0.42, ...Array(8).fill(0.355)],
+        fontFace: 'Arial', fontSize: 10.5, valign: 'middle',
+        color: 'e8e8f0', fill: { color: '15131f' },
+        border: { type: 'solid', pt: 0.5, color: '2a2740' },
       });
     }
     if (s.name === 'model' && placeholders[0]) {
