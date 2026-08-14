@@ -78,6 +78,12 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
   const booking = await confirmBooking(payment.booking);
 
+  // confirmBooking cancels + refunds if the hold lapsed and the spot filled up.
+  if (booking?.status === 'cancelled') {
+    res.status(409);
+    throw new Error('This spot filled up before payment completed — your payment has been refunded');
+  }
+
   res.json({ success: true, payment, booking });
 });
 

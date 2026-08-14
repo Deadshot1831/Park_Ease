@@ -52,9 +52,17 @@ const parkingSpotSchema = new mongoose.Schema(
       required: [true, 'Total spots is required'],
       min: [1, 'Must have at least 1 spot'],
     },
+    // Cache of "free right now", derived from bookings on every read. Never
+    // trust it as the source of truth — see utils/availability.js.
     availableSpots: {
       type: Number,
       required: true,
+      min: 0,
+    },
+    // Spaces the owner has taken out of service (maintenance, reserved).
+    blockedSpots: {
+      type: Number,
+      default: 0,
       min: 0,
     },
     pricing: {

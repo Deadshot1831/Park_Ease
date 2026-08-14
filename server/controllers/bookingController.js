@@ -8,6 +8,34 @@ const { emitAvailabilityUpdate, emitToUser } = require('../services/socketServic
 const { sendBookingConfirmation } = require('../services/emailService');
 const { refundPayment } = require('../services/paymentService');
 const { buildInvoicePdf } = require('../services/invoiceService');
+const { freeBetween, refreshSpot } = require('../utils/availability');
+
+// How long an unpaid booking holds its space before the TTL index reaps it.
+const CHECKOUT_HOLD_MINUTES = 10;
+
+// Refund a paid booking. Never throws — a failed refund must not block the
+// cancellation it accompanies. Returns true when the refund went through.
+const refundBookingPayment = async (booking) => {
+  if (!booking.payment) return false;
+  try {
+    const payment = await Payment.findById(booking.payment);
+    if (!payment || payment.status !== 'paid') return false;
+    const refund = await refundPayment(payment.razorpayPaymentId, payment.amount);
+    payment.status = 'refunded';
+    payment.refundId = refund?.id;
+    await payment.save();
+    return true;
+  } catch (err) {
+    console.error('Refund failed:', err.message);
+    return false;
+  }
+};
+
+// Recompute a spot's cached availability and push it to connected clients.
+const syncAvailability = async (spotId) => {
+  const spot = await refreshSpot(spotId);
+  if (spot) emitAvailabilityUpdate(spot._id, spot.availableSpots, spot.totalSpots);
+};
 
 // Compute price from spot pricing and duration in hours
 const computeAmount = (spot, hours) => {
@@ -35,9 +63,11 @@ const createBooking = asyncHandler(async (req, res) => {
     throw new Error('Invalid booking time range');
   }
 
-  if (spot.availableSpots < 1) {
+  // Availability is per time window, not a global counter: a space is only
+  // taken if an existing booking overlaps the requested one.
+  if ((await freeBetween(spot, start, end)) < 1) {
     res.status(409);
-    throw new Error('No spots available for this location');
+    throw new Error('No spots available for this time');
   }
 
   const duration = (end - start) / (1000 * 60 * 60); // hours
@@ -52,8 +82,10 @@ const createBooking = asyncHandler(async (req, res) => {
     duration: Math.round(duration * 100) / 100,
     amount,
     status: 'pending', // becomes 'confirmed' after payment verification
+    expiresAt: new Date(Date.now() + CHECKOUT_HOLD_MINUTES * 60 * 1000),
   });
 
+  await syncAvailability(spot._id);
   res.status(201).json({ success: true, booking });
 });
 
@@ -62,20 +94,35 @@ const confirmBooking = async (bookingId) => {
   const booking = await Booking.findById(bookingId).populate('user').populate('parkingSpot');
   if (!booking || booking.status !== 'pending') return booking;
 
-  // Atomically decrement availability only if a spot remains
-  const spot = await ParkingSpot.findOneAndUpdate(
-    { _id: booking.parkingSpot._id, availableSpots: { $gt: 0 } },
-    { $inc: { availableSpots: -1 } },
-    { new: true }
+  // The pending hold already reserved the space, but it expires — re-check in
+  // case it lapsed between checkout and the payment landing. Excluding this
+  // booking's own hold keeps the check correct if it is still live.
+  const free = await freeBetween(
+    booking.parkingSpot,
+    booking.startTime,
+    booking.endTime,
+    booking._id
   );
 
+  if (free < 1) {
+    // Paid for a space that no longer exists — cancel and give the money back
+    // rather than confirming a booking that cannot be honoured.
+    booking.status = 'cancelled';
+    booking.cancellationReason = 'Sold out before payment completed';
+    booking.cancelledAt = new Date();
+    booking.expiresAt = undefined;
+    await booking.save();
+    await refundBookingPayment(booking);
+    emitToUser(booking.user._id, 'booking', { bookingId: booking._id, status: 'cancelled' });
+    return booking;
+  }
+
   booking.status = 'confirmed';
+  booking.expiresAt = undefined; // paid — stop the TTL from reaping it
   booking.qrCode = await generateBookingQR(booking);
   await booking.save();
 
-  if (spot) {
-    emitAvailabilityUpdate(spot._id, spot.availableSpots, spot.totalSpots);
-  }
+  await syncAvailability(booking.parkingSpot._id);
   emitToUser(booking.user._id, 'booking', { bookingId: booking._id, status: 'confirmed' });
 
   // Generate the PDF receipt and email it with the confirmation (best-effort)
@@ -192,44 +239,16 @@ const cancelBooking = asyncHandler(async (req, res) => {
     throw new Error(`Booking is already ${booking.status}`);
   }
 
-  const wasConfirmed = ['confirmed', 'active'].includes(booking.status);
   booking.status = 'cancelled';
   booking.cancellationReason = req.body.reason || 'Cancelled by user';
   booking.cancelledAt = new Date();
+  booking.expiresAt = undefined;
   await booking.save();
 
-  // Release the spot back to the pool
-  if (wasConfirmed) {
-    const spot = await ParkingSpot.findByIdAndUpdate(
-      booking.parkingSpot._id,
-      { $inc: { availableSpots: 1 } },
-      { new: true }
-    );
-    if (spot) {
-      spot.availableSpots = Math.min(spot.availableSpots, spot.totalSpots);
-      await spot.save();
-      emitAvailabilityUpdate(spot._id, spot.availableSpots, spot.totalSpots);
-    }
-  }
+  // Cancelling drops the hold, which frees the space again.
+  await syncAvailability(booking.parkingSpot._id);
 
-  // Refund a paid booking (Razorpay refund, or mock in dev). Never fail the
-  // cancellation if the refund call errors — log and continue.
-  let refunded = false;
-  if (booking.payment) {
-    try {
-      const payment = await Payment.findById(booking.payment);
-      if (payment && payment.status === 'paid') {
-        const refund = await refundPayment(payment.razorpayPaymentId, payment.amount);
-        payment.status = 'refunded';
-        payment.refundId = refund?.id;
-        await payment.save();
-        refunded = true;
-      }
-    } catch (err) {
-      console.error('Refund failed:', err.message);
-    }
-  }
-
+  const refunded = await refundBookingPayment(booking);
   res.json({ success: true, booking, refunded });
 });
 
@@ -254,6 +273,9 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
   booking.status = status;
   await booking.save();
+
+  // 'completed' and 'cancelled' drop the hold — push the freed space to clients.
+  await syncAvailability(booking.parkingSpot._id);
   emitToUser(booking.user, 'booking', { bookingId: booking._id, status });
   res.json({ success: true, booking });
 });
