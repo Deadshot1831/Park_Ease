@@ -1,6 +1,7 @@
 const ParkingSpot = require('../models/ParkingSpot');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { emitAvailabilityUpdate } = require('../services/socketService');
+const { applyLiveAvailability, refreshSpot } = require('../utils/availability');
 
 // Build a Mongo filter object from query params shared by search & list
 const buildFilters = (query) => {
@@ -19,12 +20,13 @@ const buildFilters = (query) => {
     filter.amenities = { $all: list };
   }
 
-  if (query.availableOnly === 'true') {
-    filter.availableSpots = { $gt: 0 };
-  }
-
+  // NB: availableOnly is NOT a DB filter — availableSpots in Mongo is a stale
+  // cache. It is applied after applyLiveAvailability() on the result set.
   return filter;
 };
+
+const filterAvailable = (spots, query) =>
+  query.availableOnly === 'true' ? spots.filter((s) => s.availableSpots > 0) : spots;
 
 // @route   GET /api/spots/nearby?lat=&lng=&radius=
 const getNearbySpots = asyncHandler(async (req, res) => {
@@ -43,8 +45,8 @@ const getNearbySpots = asyncHandler(async (req, res) => {
     },
   };
 
-  const spots = await ParkingSpot.find(filter).limit(100);
-  res.json({ success: true, count: spots.length, spots });
+  const found = filterAvailable(await applyLiveAvailability(await ParkingSpot.find(filter).limit(100)), req.query);
+  res.json({ success: true, count: found.length, spots: found });
 });
 
 // @route   GET /api/spots/search?q=&...filters
@@ -71,7 +73,8 @@ const searchSpots = asyncHandler(async (req, res) => {
       { $skip: (page - 1) * limit },
       { $limit: limit },
     ]);
-    return res.json({ success: true, count: spots.length, page, spots });
+    const found = filterAvailable(await applyLiveAvailability(spots), req.query);
+    return res.json({ success: true, count: found.length, page, spots: found });
   }
 
   if (q) filter.$text = { $search: q };
@@ -83,7 +86,10 @@ const searchSpots = asyncHandler(async (req, res) => {
 
   const spots = await queryBuilder.skip((page - 1) * limit).limit(limit);
   const total = await ParkingSpot.countDocuments(filter);
-  res.json({ success: true, count: spots.length, total, page, spots });
+  // ponytail: availableOnly trims the current page only, so `total` ignores it.
+  // Move to an aggregation with a $lookup on bookings if exact counts matter.
+  const found = filterAvailable(await applyLiveAvailability(spots), req.query);
+  res.json({ success: true, count: found.length, total, page, spots: found });
 });
 
 // @route   GET /api/spots/:id
@@ -100,6 +106,7 @@ const getSpot = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Parking spot not found');
   }
+  await applyLiveAvailability([spot]);
   res.json({ success: true, spot });
 });
 
@@ -107,7 +114,7 @@ const getSpot = asyncHandler(async (req, res) => {
 // owner, isApproved, averageRating, totalReviews, etc.
 const OWNER_EDITABLE = [
   'name', 'description', 'address', 'location', 'type', 'parkingType',
-  'totalSpots', 'availableSpots', 'pricing', 'amenities', 'operatingHours',
+  'totalSpots', 'blockedSpots', 'pricing', 'amenities', 'operatingHours',
   'images', 'isActive',
 ];
 const pickEditable = (body) => {
@@ -128,7 +135,9 @@ const createSpot = asyncHandler(async (req, res) => {
 
 // @route   GET /api/spots/owner/mine  (owner)
 const getMySpots = asyncHandler(async (req, res) => {
-  const spots = await ParkingSpot.find({ owner: req.user._id }).sort({ createdAt: -1 });
+  const spots = await applyLiveAvailability(
+    await ParkingSpot.find({ owner: req.user._id }).sort({ createdAt: -1 })
+  );
   res.json({ success: true, count: spots.length, spots });
 });
 
@@ -174,6 +183,8 @@ const deleteSpot = asyncHandler(async (req, res) => {
 });
 
 // @route   PUT /api/spots/:id/availability  (owner)
+// The owner declares how many spaces are open for business; live bookings are
+// subtracted from that, so this sets blockedSpots rather than availableSpots.
 const updateAvailability = asyncHandler(async (req, res) => {
   const { availableSpots } = req.body;
   const spot = await ParkingSpot.findById(req.params.id);
@@ -184,10 +195,13 @@ const updateAvailability = asyncHandler(async (req, res) => {
     throw e;
   }
 
-  spot.availableSpots = Math.max(0, Math.min(Number(availableSpots), spot.totalSpots));
+  const open = Math.max(0, Math.min(Number(availableSpots) || 0, spot.totalSpots));
+  spot.blockedSpots = spot.totalSpots - open;
   await spot.save();
-  emitAvailabilityUpdate(spot._id, spot.availableSpots, spot.totalSpots);
-  res.json({ success: true, spot });
+
+  const updated = await refreshSpot(spot._id);
+  emitAvailabilityUpdate(updated._id, updated.availableSpots, updated.totalSpots);
+  res.json({ success: true, spot: updated });
 });
 
 module.exports = {

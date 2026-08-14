@@ -51,6 +51,12 @@ const bookingSchema = new mongoose.Schema(
     cancelledAt: {
       type: Date,
     },
+    // Checkout hold. Set when the booking is created, cleared once payment is
+    // confirmed. Mongo's TTL monitor deletes anything still unpaid past this,
+    // which is what releases the space it was holding.
+    expiresAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -61,5 +67,7 @@ const bookingSchema = new mongoose.Schema(
 bookingSchema.index({ user: 1, status: 1 });
 bookingSchema.index({ parkingSpot: 1, startTime: 1, endTime: 1 });
 bookingSchema.index({ status: 1, startTime: 1 });
+// Reaps abandoned checkouts. Docs without expiresAt (i.e. paid) are ignored.
+bookingSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('Booking', bookingSchema);
