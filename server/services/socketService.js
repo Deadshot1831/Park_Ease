@@ -1,4 +1,5 @@
 // Socket.IO real-time service for live availability updates
+const jwt = require('jsonwebtoken');
 
 let io = null;
 
@@ -11,7 +12,25 @@ const initSocket = (server, clientUrl) => {
     },
   });
 
+  // Identify the connection so per-user events can be routed to that user only.
+  // A missing or stale token is fine — the socket stays anonymous and still
+  // receives public availability updates.
+  io.use((socket, next) => {
+    const token = socket.handshake.auth?.token;
+    if (token) {
+      try {
+        socket.userId = jwt.verify(token, process.env.JWT_SECRET).id;
+      } catch {
+        // Anonymous connection
+      }
+    }
+    next();
+  });
+
   io.on('connection', (socket) => {
+    // Private room for this user's booking events
+    if (socket.userId) socket.join(`user:${socket.userId}`);
+
     if (process.env.NODE_ENV !== 'production') {
       console.log(`🔌 Socket connected: ${socket.id}`);
     }
@@ -43,10 +62,11 @@ const emitAvailabilityUpdate = (spotId, availableSpots, totalSpots) => {
   io.to(`spot:${spotId}`).emit('spot:availability', payload);
 };
 
-// Notify a specific user (booking status changes, etc.)
+// Notify a specific user (booking status changes, etc.). Delivered only to that
+// user's own room — never broadcast, or every connected client sees it.
 const emitToUser = (userId, event, data) => {
   if (!io) return;
-  io.emit(`user:${userId}:${event}`, data);
+  io.to(`user:${userId}`).emit(event, data);
 };
 
 module.exports = { initSocket, emitAvailabilityUpdate, emitToUser };

@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 const { uploadImages } = require('../controllers/uploadController');
 
 const router = express.Router();
@@ -14,6 +14,9 @@ const upload = multer({
   },
 });
 
-router.post('/', protect, upload.array('images', 6), uploadImages);
+// Listing photos are the only thing uploaded today, so this is owner-only —
+// any signed-up account could otherwise push 30 MB a request into Cloudinary.
+// Loosen it (to `protect`) if drivers ever attach photos to reviews.
+router.post('/', protect, authorize('owner', 'admin'), upload.array('images', 6), uploadImages);
 
 module.exports = router;

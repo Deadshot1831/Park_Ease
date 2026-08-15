@@ -11,7 +11,12 @@ export const useAvailabilitySocket = (onUpdate, spotId) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io(SOCKET_URL, { transports: ['websocket', 'polling'] });
+    // The token identifies the connection so the server can route this user's
+    // own booking events to them; availability updates work without it.
+    const socket = io(SOCKET_URL, {
+      transports: ['websocket', 'polling'],
+      auth: { token: localStorage.getItem('parkease_token') || undefined },
+    });
     socketRef.current = socket;
 
     socket.on('availability:update', onUpdate);

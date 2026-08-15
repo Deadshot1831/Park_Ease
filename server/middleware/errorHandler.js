@@ -31,14 +31,18 @@ const errorHandler = (err, req, res, next) => {
       .join(', ');
   }
 
-  if (process.env.NODE_ENV !== 'production') {
+  // Opt in to debug output rather than out of it: a forgotten NODE_ENV in
+  // production would otherwise ship stack traces to every client.
+  const isDev = process.env.NODE_ENV === 'development';
+
+  if (isDev) {
     console.error('❌ Error:', err);
   }
 
   res.status(statusCode).json({
     success: false,
     message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+    ...(isDev && { stack: err.stack }),
   });
 };
 
