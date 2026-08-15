@@ -41,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(mongoSanitize());
 app.use(passport.initialize());
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
