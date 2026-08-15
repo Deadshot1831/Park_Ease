@@ -57,6 +57,12 @@ const userSchema = new mongoose.Schema(
         ref: 'ParkingSpot',
       },
     ],
+    // Bumped whenever the password changes; tokens carrying an older value are
+    // rejected, which is what logs other devices out.
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },
@@ -72,6 +78,10 @@ userSchema.pre('save', async function (next) {
   }
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
+  // Changing a password must retire every token issued before it — otherwise a
+  // stolen token keeps working after the victim resets, which is the whole
+  // reason they reset. Done here so any future change-password path is covered.
+  if (!this.isNew) this.tokenVersion = (this.tokenVersion || 0) + 1;
   next();
 });
 
@@ -83,7 +93,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 // Generate JWT token
 userSchema.methods.generateAuthToken = function () {
   return jwt.sign(
-    { id: this._id, role: this.role },
+    { id: this._id, role: this.role, tv: this.tokenVersion || 0 },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
@@ -93,6 +103,7 @@ userSchema.methods.generateAuthToken = function () {
 userSchema.methods.toPublicJSON = function () {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.tokenVersion;
   delete obj.resetPasswordToken;
   delete obj.resetPasswordExpire;
   delete obj.__v;

@@ -22,6 +22,11 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'User no longer exists' });
     }
 
+    // Issued before the last password change → the session was revoked
+    if ((decoded.tv || 0) !== (user.tokenVersion || 0)) {
+      return res.status(401).json({ success: false, message: 'Session expired, please sign in again' });
+    }
+
     req.user = user;
     next();
   } catch (error) {
@@ -49,7 +54,8 @@ const optionalAuth = async (req, res, next) => {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id).select('-password');
+      const user = await User.findById(decoded.id).select('-password');
+      if (user && (decoded.tv || 0) === (user.tokenVersion || 0)) req.user = user;
     }
   } catch (error) {
     // Ignore — request continues unauthenticated
