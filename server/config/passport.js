@@ -1,27 +1,9 @@
 const passport = require('passport');
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
-// JWT Strategy
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
-};
-
-passport.use(
-  new JwtStrategy(jwtOptions, async (payload, done) => {
-    try {
-      const user = await User.findById(payload.id).select('-password');
-      if (user) {
-        return done(null, user);
-      }
-      return done(null, false);
-    } catch (error) {
-      return done(error, false);
-    }
-  })
-);
+// Passport handles Google OAuth only; bearer tokens go through
+// middleware/auth.js, which is also where session revocation is enforced.
 
 // Google OAuth Strategy
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
@@ -41,11 +23,19 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             return done(null, user);
           }
 
-          // Check if email already registered
-          user = await User.findOne({ email: profile.emails[0].value });
+          // An account may already exist for this address. Adopting it is only
+          // safe when nobody could be sitting on it with a password we never
+          // verified: registration does not confirm email ownership, so someone
+          // can sign up with a stranger's address and wait for the real owner
+          // to arrive via Google, ending up sharing the account with them.
+          user = await User.findOne({ email: profile.emails[0].value }).select('+password');
+
+          if (user && user.password && !user.isEmailVerified) {
+            return done(null, false);
+          }
 
           if (user) {
-            // Link Google account to existing user
+            // Safe to link: the account has no password, or it is verified
             user.googleId = profile.id;
             user.avatar = profile.photos[0]?.value || user.avatar;
             await user.save();

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FaParking, FaGoogle } from 'react-icons/fa';
 import { useAuthStore } from '../store/authStore';
@@ -13,6 +13,15 @@ export default function Login() {
   const from = location.state?.from || '/';
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [params, setParams] = useSearchParams();
+
+  // Google sign-in bounces back here with ?error=google when it does not
+  // complete — including when the address already has a password account.
+  useEffect(() => {
+    if (!params.get('error')) return;
+    toast.error("Google sign-in didn't complete. If you already have an account, log in with your password.");
+    setParams({}, { replace: true });
+  }, [params, setParams]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -54,7 +63,12 @@ export default function Login() {
             />
           </div>
           <div>
-            <label className="label">Password</label>
+            <div className="flex items-center justify-between">
+              <label className="label">Password</label>
+              <Link to="/forgot-password" className="mb-1 text-xs font-medium text-brand-300 hover:text-brand-200">
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               className="input"
