@@ -56,9 +56,13 @@ router.get(
   '/google',
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
+// Failures land back on the client's login page. The reason stays vague on
+// purpose — distinguishing "you denied consent" from "that address already has
+// a password account" would let anyone test which emails are registered.
+const CLIENT = process.env.CLIENT_URL || 'http://localhost:5173';
 router.get(
   '/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+  passport.authenticate('google', { session: false, failureRedirect: `${CLIENT}/login?error=google` }),
   ctrl.googleCallback
 );
 
