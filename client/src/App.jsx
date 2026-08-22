@@ -14,6 +14,8 @@ const Booking = lazy(() => import('./pages/Booking'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const AuthCallback = lazy(() => import('./pages/AuthCallback'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const Profile = lazy(() => import('./pages/Profile'))
 const MyBookings = lazy(() => import('./pages/MyBookings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -46,6 +48,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          {/* Target of the link emailed by /api/auth/forgot-password */}
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/help" element={<Help />} />
 
           <Route
