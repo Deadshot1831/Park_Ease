@@ -3,8 +3,7 @@ import { FaParking, FaCar, FaRupeeSign, FaCheckCircle } from 'react-icons/fa';
 import OwnerNav from '../../components/layout/OwnerNav';
 import Loader from '../../components/common/Loader';
 import MiniChart from '../../components/common/MiniChart';
-import { getMySpots } from '../../services/spotService';
-import { getIncomingBookings } from '../../services/bookingService';
+import { getBookingStats } from '../../services/bookingService';
 import { formatCurrency } from '../../utils/helpers';
 
 const StatCard = ({ icon: Icon, label, value, tint }) => (
@@ -19,38 +18,18 @@ const StatCard = ({ icon: Icon, label, value, tint }) => (
   </div>
 );
 
-const MONTHS = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    Promise.all([getMySpots(), getIncomingBookings()])
-      .then(([{ spots }, { bookings }]) => {
-        const paid = bookings.filter((b) => ['confirmed', 'active', 'completed'].includes(b.status));
-        const revenue = paid.reduce((sum, b) => sum + (b.amount || 0), 0);
-
-        // Revenue by recent month for the trend chart
-        const byMonth = MONTHS.map((label, i) => {
-          const monthRevenue = paid
-            .filter((b) => new Date(b.createdAt).getMonth() === (6 + i) % 12)
-            .reduce((s, b) => s + (b.amount || 0), 0);
-          return { label, value: monthRevenue };
-        });
-        const peak = byMonth.reduce((best, d, i) => (d.value > byMonth[best].value ? i : best), 0);
-
-        setStats({
-          spots: spots.length,
-          totalSpots: spots.reduce((s, sp) => s + sp.totalSpots, 0),
-          bookings: bookings.length,
-          confirmed: bookings.filter((b) => b.status === 'confirmed').length,
-          revenue,
-          recent: bookings.slice(0, 5),
-          chart: byMonth,
-          peak,
-        });
+    getBookingStats()
+      .then(({ stats: s }) => {
+        const peak = s.chart.reduce((best, d, i) => (d.value > s.chart[best].value ? i : best), 0);
+        setStats({ ...s, peak });
       })
-      .catch(() => setStats({ spots: 0, bookings: 0, revenue: 0, recent: [], chart: [], peak: -1 }));
+      .catch(() =>
+        setStats({ spots: 0, totalSpots: 0, bookings: 0, confirmed: 0, revenue: 0, recent: [], chart: [], peak: -1 })
+      );
   }, []);
 
   return (

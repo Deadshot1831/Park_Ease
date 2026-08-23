@@ -21,6 +21,8 @@ router.post(
 
 router.get('/my', protect, ctrl.getMyBookings);
 router.get('/incoming', protect, authorize('owner', 'admin'), ctrl.getIncomingBookings);
+// Must stay above /:id or 'stats' is read as a booking id
+router.get('/stats', protect, authorize('owner', 'admin'), ctrl.getBookingStats);
 router.get('/:id', protect, ctrl.getBooking);
 router.get('/:id/invoice', protect, ctrl.getInvoice);
 router.put('/:id/cancel', protect, ctrl.cancelBooking);
