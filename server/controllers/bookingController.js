@@ -157,6 +157,91 @@ const getMyBookings = asyncHandler(async (req, res) => {
   res.json({ success: true, count: bookings.length, bookings });
 });
 
+// Statuses that represent money actually taken.
+const REVENUE_STATUSES = ['confirmed', 'active', 'completed'];
+const TREND_MONTHS = 6;
+// Reports bucket by the operator's local calendar, not UTC — otherwise a
+// booking made late on the 31st is reported in the previous month.
+const REPORT_TZ = process.env.REPORT_TIMEZONE || 'Asia/Kolkata';
+
+// @route   GET /api/bookings/stats  (owner)
+// Everything the owner dashboard needs, as a handful of numbers. It used to
+// pull every booking the owner had ever received and add them up in the
+// browser, which grows without limit as the business does.
+const getBookingStats = asyncHandler(async (req, res) => {
+  const spots = await ParkingSpot.find({ owner: req.user._id }).select('totalSpots');
+  const spotIds = spots.map((s) => s._id);
+
+  // Start of the month TREND_MONTHS-1 back, so the trend is a rolling window
+  // ending with the current month rather than a fixed slice of the year.
+  const now = new Date();
+  const since = new Date(now.getFullYear(), now.getMonth() - (TREND_MONTHS - 1), 1);
+
+  const [facets] = await Booking.aggregate([
+    { $match: { parkingSpot: { $in: spotIds } } },
+    {
+      $facet: {
+        totals: [
+          {
+            $group: {
+              _id: null,
+              bookings: { $sum: 1 },
+              confirmed: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] } },
+              revenue: { $sum: { $cond: [{ $in: ['$status', REVENUE_STATUSES] }, '$amount', 0] } },
+            },
+          },
+        ],
+        trend: [
+          { $match: { status: { $in: REVENUE_STATUSES }, createdAt: { $gte: since } } },
+          {
+            $group: {
+              // Grouped by year AND month: bucketing on month alone merges this
+              // July with every previous July.
+              _id: {
+                year: { $year: { date: '$createdAt', timezone: REPORT_TZ } },
+                month: { $month: { date: '$createdAt', timezone: REPORT_TZ } },
+              },
+              revenue: { $sum: '$amount' },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  const totals = facets.totals[0] || { bookings: 0, confirmed: 0, revenue: 0 };
+  const byMonth = new Map(facets.trend.map((t) => [`${t._id.year}-${t._id.month}`, t.revenue]));
+
+  const chart = [];
+  for (let back = TREND_MONTHS - 1; back >= 0; back -= 1) {
+    const month = new Date(now.getFullYear(), now.getMonth() - back, 1);
+    chart.push({
+      label: month.toLocaleString('en-US', { month: 'short' }),
+      value: byMonth.get(`${month.getFullYear()}-${month.getMonth() + 1}`) || 0,
+    });
+  }
+
+  // Small enough to populate normally rather than $lookup inside the facet
+  const recent = await Booking.find({ parkingSpot: { $in: spotIds } })
+    .populate('parkingSpot', 'name')
+    .populate('user', 'name avatar')
+    .sort({ createdAt: -1 })
+    .limit(5);
+
+  res.json({
+    success: true,
+    stats: {
+      spots: spots.length,
+      totalSpots: spots.reduce((sum, s) => sum + s.totalSpots, 0),
+      bookings: totals.bookings,
+      confirmed: totals.confirmed,
+      revenue: totals.revenue,
+      chart,
+      recent,
+    },
+  });
+});
+
 // @route   GET /api/bookings/incoming  (owner)
 const getIncomingBookings = asyncHandler(async (req, res) => {
   const spots = await ParkingSpot.find({ owner: req.user._id }).select('_id');
@@ -285,6 +370,7 @@ module.exports = {
   confirmBooking,
   getMyBookings,
   getIncomingBookings,
+  getBookingStats,
   getBooking,
   getInvoice,
   cancelBooking,

@@ -8,6 +8,9 @@ export const getMyBookings = (status) =>
 export const getIncomingBookings = (status) =>
   api.get('/bookings/incoming', { params: status ? { status } : {} }).then((r) => r.data);
 
+// Aggregated owner dashboard figures — totals, revenue and a six-month trend
+export const getBookingStats = () => api.get('/bookings/stats').then((r) => r.data);
+
 export const getBooking = (id) => api.get(`/bookings/${id}`).then((r) => r.data);
 
 // Downloads the PDF receipt and triggers a browser save
